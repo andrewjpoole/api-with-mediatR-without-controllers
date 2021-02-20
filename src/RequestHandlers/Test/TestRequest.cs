@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
-namespace mediatr_test
+namespace mediatr_test.RequestHandlers.Test
 {
     public class TestRequest : IRequest<ApiResponseWrapper<TestReply>>
     {
@@ -16,11 +16,11 @@ namespace mediatr_test
         public string From { get; set; }
     }
 
-    public class TestRequestHandler : IRequestHandler<TestRequest, ApiResponseWrapper<TestReply>> 
-    {    
+    public class TestRequestHandler : IRequestHandler<TestRequest, ApiResponseWrapper<TestReply>>
+    {
         public Task<ApiResponseWrapper<TestReply>> Handle(TestRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new ApiResponseWrapper<TestReply> 
+            return Task.FromResult(new ApiResponseWrapper<TestReply>
             {
                 StatusCode = StatusCodes.Status202Accepted,
                 Data = new TestReply

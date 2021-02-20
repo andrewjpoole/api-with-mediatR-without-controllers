@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MediatR.Pipeline;
 using MediatR;
-using System.IO;
+using mediatr_test.RequestHandlers.Test;
 
 namespace mediatr_test
 {

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http.Json;
 
 namespace mediatr_test
 {
