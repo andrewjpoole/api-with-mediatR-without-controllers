@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using AJP.MediatrEndpoints;
 
 namespace mediatr_test.RequestHandlers
 {

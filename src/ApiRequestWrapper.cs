@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace mediatr_test
+namespace AJP.MediatrEndpoints
 {
     public class ApiRequestWrapper<TRequest, TResponse> : IRequest<ApiResponseWrapper<TResponse>>
     {

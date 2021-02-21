@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace mediatr_test
+namespace AJP.MediatrEndpoints
 {
     public static class MediarREndpointDelagteBuilder
     {
@@ -27,6 +27,7 @@ namespace mediatr_test
                         context.Request.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
                     }
 
+                    // call preProcessDelegate
                     logger.LogInformation($"{context.Request.Method} {context.Request.Path} request received with queryString:{context.Request.QueryString} and CorrelationId:{correlationId}");
                     
                     var data = await context.Request.ReadFromJsonAsync<TRequest>();                    
@@ -45,6 +46,8 @@ namespace mediatr_test
                     }
 
                     context.Response.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
+                    
+                    // call postProcessDelegate
                     context.Response.Headers.Add(Constants.HeaderKeys_Node, Environment.MachineName);
 
                     context.Response.StatusCode = response.StatusCode;                    
@@ -54,7 +57,7 @@ namespace mediatr_test
                 }
                 catch (System.Exception) // todo catch any serialisation exception and return bad request etc
                 {
-                    
+                    // call errorProcessDelegate
                     throw;
                 }
 

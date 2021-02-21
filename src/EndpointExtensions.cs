@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
-namespace mediatr_test
+namespace AJP.MediatrEndpoints
 {
     public static class EndpointExtensions
     {

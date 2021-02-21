@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace mediatr_test
+namespace AJP.MediatrEndpoints
 {
     public class ApiResponseWrapper<TResponse>
     {
