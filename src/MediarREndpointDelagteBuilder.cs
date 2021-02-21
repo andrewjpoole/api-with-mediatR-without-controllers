@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http.Json;
+using System;
 
 namespace mediatr_test
 {
@@ -16,17 +16,43 @@ namespace mediatr_test
                                 
                 try
                 {
-                    logger.LogInformation($"{context.Request.Method} {context.Request.Path} request received with queryString:{context.Request.QueryString}");
+                    string correlationId;
+                    if(context.Request.Headers.ContainsKey(Constants.HeaderKeys_CorrelationId))
+                    {
+                        correlationId = context.Request.Headers[Constants.HeaderKeys_CorrelationId].ToString();
+                    }
+                    else
+                    {
+                        correlationId = Guid.NewGuid().ToString();
+                        context.Request.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
+                    }
+
+                    logger.LogInformation($"{context.Request.Method} {context.Request.Path} request received with queryString:{context.Request.QueryString} and CorrelationId:{correlationId}");
                     
-                    var request = await context.Request.ReadFromJsonAsync<TRequest>();
-                    var response = await mediator.Send(request) as ApiResponseWrapper<TResponse>; // send in any route values and query string? may have to wrap the request as well?
+                    var data = await context.Request.ReadFromJsonAsync<TRequest>();                    
+                    var details = new ApiRequestDetails(context.Request.Headers, context.Request.QueryString, context.Request.RouteValues);
+                    
+                    var request = new ApiRequestWrapper<TRequest, TResponse>
+                    {
+                        Details = details,
+                        Data = data
+                    };
+                    var response = await mediator.Send(request) as ApiResponseWrapper<TResponse>;
+
+                    foreach(var header in response.Headers)
+                    {
+                        context.Response.Headers.Add(header.Key, header.Value);
+                    }
+
+                    context.Response.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
+                    context.Response.Headers.Add(Constants.HeaderKeys_Node, Environment.MachineName);
 
                     context.Response.StatusCode = response.StatusCode;                    
                     await context.Response.WriteAsJsonAsync<TResponse>(response.Data);
                     
                     logger.LogInformation($"Sending {context.Response.StatusCode} response");
                 }
-                catch (System.Exception) // todo catch the serialisation exception and return bad request etc
+                catch (System.Exception) // todo catch any serialisation exception and return bad request etc
                 {
                     
                     throw;

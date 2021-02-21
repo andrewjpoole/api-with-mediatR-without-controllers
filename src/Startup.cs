@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MediatR;
-using mediatr_test.RequestHandlers.Test;
+using mediatr_test.RequestHandlers;
 
 namespace mediatr_test
 {
@@ -16,7 +16,7 @@ namespace mediatr_test
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging();
-            services.AddMediatR(typeof(Startup));            
+            services.AddMediatR(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,7 +36,7 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });               
 
-                endpoints.MapGetToRequestHandler<TestRequest, TestReply>("Test");
+                endpoints.MapGetToRequestHandler<GreetingRequest, GreetingResponse>("api/v1/greeting");
             });
         }
     }
