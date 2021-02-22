@@ -7,6 +7,9 @@ using Microsoft.Extensions.Hosting;
 using MediatR;
 using mediatr_test.RequestHandlers;
 using AJP.MediatrEndpoints;
+using AJP.MediatrEndpoints.SwaggerSupport;
+using Microsoft.OpenApi.Models;
+using System;
 
 namespace mediatr_test
 {
@@ -16,6 +19,30 @@ namespace mediatr_test
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Api with mediatr without controllers test app",
+                    Version = "v1",
+                    Description = "test app showing how to use Mediatr RequestHandlers wired up to Endpoints, with Swagger documentation",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Andrew Poole",
+                        Email = string.Empty,
+                        Url = new Uri("https://forkinthecode.net/")
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Use under MIT license",
+                        Url = new Uri("https://opensource.org/licenses/MIT"),
+                    }
+                });
+
+                c.DocumentFilter<AddEndpointsDocumentFilter>();
+            });
+
             services.AddLogging();
             services.AddMediatR(typeof(Startup));
             services.AddSingleton<IMediatrEndpointsProcessors, RequestProcessors>();
@@ -29,7 +56,14 @@ namespace mediatr_test
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
