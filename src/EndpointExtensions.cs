@@ -7,25 +7,25 @@ namespace AJP.MediatrEndpoints
     {
         public static IEndpointRouteBuilder MapGetToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern)
         {           
-            endpoints.MapGet(pattern, MediarREndpointDelagteBuilder.Build<TRequest, TResponse>());
+            endpoints.MapGet(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>());
             return endpoints;
         }
 
         public static IEndpointRouteBuilder MapPostToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern)
         {
-            endpoints.MapPost(pattern, MediarREndpointDelagteBuilder.Build<TRequest, TResponse>());
+            endpoints.MapPost(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>());
             return endpoints;
         }
 
         public static IEndpointRouteBuilder MapPutToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern)
         {
-            endpoints.MapPut(pattern, MediarREndpointDelagteBuilder.Build<TRequest, TResponse>());
+            endpoints.MapPut(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>());
             return endpoints;
         }
 
         public static IEndpointRouteBuilder MapDeleteToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern)
         {
-            endpoints.MapDelete(pattern, MediarREndpointDelagteBuilder.Build<TRequest, TResponse>());
+            endpoints.MapDelete(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>());
             return endpoints;
         }
     }

@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace AJP.MediatrEndpoints
 {
-    public static class MediarREndpointDelagteBuilder
+    public static class MediatrREndpointDelegateBuilder
     {
         public static RequestDelegate Build<TRequest, TResponse>()
         {
