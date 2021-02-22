@@ -31,20 +31,20 @@ namespace AJP.MediatrEndpoints
                         Details = details,
                         Data = data
                     };
-                    var response = await mediator.Send(request) as ApiResponseWrapper<TResponse>;
+                    var mediatrResponseWrapper = await mediator.Send(request) as ApiResponseWrapper<TResponse>;
 
-                    foreach(var header in response.Headers)
+                    foreach(var header in mediatrResponseWrapper.Headers)
                     {
                         context.Response.Headers.Add(header.Key, header.Value);
                     }                    
                     
-                    context.Response.StatusCode = response.StatusCode;
+                    context.Response.StatusCode = mediatrResponseWrapper.StatusCode;
 
                     stopwatch.Stop();                  
                     requestProcessors?.PostProcess(context, stopwatch.Elapsed, logger);
-                    await context.Response.WriteAsJsonAsync<TResponse>(response.Data);
+                    await context.Response.WriteAsJsonAsync<TResponse>(mediatrResponseWrapper.Data);
                 }
-                catch (System.Exception ex) // todo catch any serialisation exception and return bad request etc
+                catch (Exception ex) // todo catch any serialisation exception and return bad request etc
                 {
                     requestProcessors?.ErrorProcess(ex, context, logger);
                     throw;
