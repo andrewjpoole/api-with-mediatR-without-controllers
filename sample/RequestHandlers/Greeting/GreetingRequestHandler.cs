@@ -8,18 +8,18 @@ using AJP.MediatrEndpoints;
 
 namespace mediatr_test.RequestHandlers
 {
-    public class TestRequest2Handler : IRequestHandler<ApiRequestWrapper<GreetingRequest, GreetingResponse>, ApiResponseWrapper<GreetingResponse>>
+    public class GreetingRequestHandler : IRequestHandler<ApiRequestWrapper<GreetingRequest, GreetingResponse>, ApiResponseWrapper<GreetingResponse>>
     {
-        private readonly ILogger<TestRequest2Handler> _logger;
+        private readonly ILogger<GreetingRequestHandler> _logger;
 
-        public TestRequest2Handler(ILogger<TestRequest2Handler> logger)
+        public GreetingRequestHandler(ILogger<GreetingRequestHandler> logger)
         {
             _logger = logger;
         }
 
         public Task<ApiResponseWrapper<GreetingResponse>> Handle(ApiRequestWrapper<GreetingRequest, GreetingResponse> request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"TestRequest2 received");
+            _logger.LogInformation($"GreetingRequestHandler request received");
             var response = new ApiResponseWrapper<GreetingResponse>
             {
                 StatusCode = StatusCodes.Status202Accepted,

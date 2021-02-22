@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 
 namespace AJP.MediatrEndpoints
 {
@@ -13,25 +14,17 @@ namespace AJP.MediatrEndpoints
             return async context => {
                 var logger = context.RequestServices.GetService<ILogger<TRequest>>();
                 var mediator = context.RequestServices.GetService<IMediator>();
-                                
+                var requestProcessors = context.RequestServices.GetService<IMediatrEndpointsProcessors>();
+                Stopwatch stopwatch;        
                 try
                 {
-                    string correlationId;
-                    if(context.Request.Headers.ContainsKey(Constants.HeaderKeys_CorrelationId))
-                    {
-                        correlationId = context.Request.Headers[Constants.HeaderKeys_CorrelationId].ToString();
-                    }
-                    else
-                    {
-                        correlationId = Guid.NewGuid().ToString();
-                        context.Request.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
-                    }
+                    requestProcessors?.PreProcess(context, logger);
 
-                    // call preProcessDelegate
-                    logger.LogInformation($"{context.Request.Method} {context.Request.Path} request received with queryString:{context.Request.QueryString} and CorrelationId:{correlationId}");
-                    
-                    var data = await context.Request.ReadFromJsonAsync<TRequest>();                    
+                    stopwatch = new Stopwatch();
+                    stopwatch.Start();
+
                     var details = new ApiRequestDetails(context.Request.Headers, context.Request.QueryString, context.Request.RouteValues);
+                    var data = await context.Request.ReadFromJsonAsync<TRequest>();                    
                     
                     var request = new ApiRequestWrapper<TRequest, TResponse>
                     {
@@ -43,24 +36,19 @@ namespace AJP.MediatrEndpoints
                     foreach(var header in response.Headers)
                     {
                         context.Response.Headers.Add(header.Key, header.Value);
-                    }
-
-                    context.Response.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
+                    }                    
                     
-                    // call postProcessDelegate
-                    context.Response.Headers.Add(Constants.HeaderKeys_Node, Environment.MachineName);
+                    context.Response.StatusCode = response.StatusCode;
 
-                    context.Response.StatusCode = response.StatusCode;                    
+                    stopwatch.Stop();                  
+                    requestProcessors?.PostProcess(context, stopwatch.Elapsed, logger);
                     await context.Response.WriteAsJsonAsync<TResponse>(response.Data);
-                    
-                    logger.LogInformation($"Sending {context.Response.StatusCode} response");
                 }
-                catch (System.Exception) // todo catch any serialisation exception and return bad request etc
+                catch (System.Exception ex) // todo catch any serialisation exception and return bad request etc
                 {
-                    // call errorProcessDelegate
+                    requestProcessors?.ErrorProcess(ex, context, logger);
                     throw;
                 }
-
             };
         }
     }

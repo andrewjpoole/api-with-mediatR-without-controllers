@@ -18,7 +18,8 @@ namespace mediatr_test
         {
             services.AddLogging();
             services.AddMediatR(typeof(Startup));
-            //services.AddSingleton<IMediatrEndpointsProcessors, RequestPreProcessor>();
+            services.AddSingleton<IMediatrEndpointsProcessors, RequestProcessors>();
+            services.AddSingleton<IStatisticsGatherer, StatisticsGatherer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +40,12 @@ namespace mediatr_test
                 });               
 
                 endpoints.MapGetToRequestHandler<GreetingRequest, GreetingResponse>("api/v1/greeting");
+
+                endpoints.MapGet("/Stats", async context =>
+                {
+                    var statsGatherer = context.RequestServices.GetService<IStatisticsGatherer>();
+                    await context.Response.WriteAsJsonAsync(statsGatherer.GetStats());
+                });
             });
         }
     }
