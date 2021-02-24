@@ -10,13 +10,12 @@ using AJP.MediatrEndpoints;
 using AJP.MediatrEndpoints.SwaggerSupport;
 using Microsoft.OpenApi.Models;
 using System;
+using mediatr_test.StatisticsGatherer;
 
 namespace mediatr_test
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
@@ -46,10 +45,11 @@ namespace mediatr_test
             services.AddLogging();
             services.AddMediatR(typeof(Startup));
             services.AddSingleton<IMediatrEndpointsProcessors, RequestProcessors>();
-            services.AddSingleton<IStatisticsGatherer, StatisticsGatherer>();
+            services.AddSingleton<IStatisticsTaskQueue, StatisticsTaskQueue>();
+            services.AddSingleton<IStatisticsQueuedHostedService, StatisticsQueuedHostedService>();
+            services.AddHostedService(sp => (StatisticsQueuedHostedService)sp.GetService<IStatisticsQueuedHostedService>());
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+                
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -73,11 +73,12 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });               
 
-                endpoints.MapGetToRequestHandler<GreetingRequest, GreetingResponse>("api/v1/greeting");
+                endpoints.MapGetToRequestHandler<GreetingRequest, GreetingResponse>("api/v1/greeting", "Greeting Endpoint", "Description of greetings endpoint blah blah");
+
 
                 endpoints.MapGet("/Stats", async context =>
                 {
-                    var statsGatherer = context.RequestServices.GetService<IStatisticsGatherer>();
+                    var statsGatherer = context.RequestServices.GetService<IStatisticsQueuedHostedService>();
                     await context.Response.WriteAsJsonAsync(statsGatherer.GetStats());
                 });
             });

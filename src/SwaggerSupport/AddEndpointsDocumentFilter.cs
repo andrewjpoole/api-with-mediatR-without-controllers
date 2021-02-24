@@ -1,7 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Routing;
-using AJP.MediatrEndpoints;
 using System.Collections.Generic;
 
 namespace AJP.MediatrEndpoints.SwaggerSupport
@@ -28,20 +27,20 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
 
                 // Get existing path to add operation to, or create a new one
                 OpenApiPathItem pathItem;
-                if (swaggerDoc.Paths.ContainsKey(endpoint.DisplayName))
+                if (swaggerDoc.Paths.ContainsKey(swaggerDecorater.DisplayName))
                 {
-                    pathItem = swaggerDoc.Paths[endpoint.DisplayName];
+                    pathItem = swaggerDoc.Paths[swaggerDecorater.DisplayName];
                 }
                 else 
                 {
                     pathItem = new OpenApiPathItem();                    
-                    swaggerDoc.Paths.Add(endpoint.DisplayName, pathItem);
+                    swaggerDoc.Paths.Add(swaggerDecorater.DisplayName, pathItem);
                 }
                               
                 // Add the operation
                 var operation = new OpenApiOperation 
                 {
-                    Description = $"operation for {swaggerDecorater.OperationType} {endpoint.DisplayName}",
+                    Description = swaggerDecorater.Description,
                     Parameters = new List<OpenApiParameter> 
                     {
                         new OpenApiParameter 
