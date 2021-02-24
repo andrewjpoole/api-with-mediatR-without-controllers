@@ -27,20 +27,27 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
 
                 // Get existing path to add operation to, or create a new one
                 OpenApiPathItem pathItem;
-                if (swaggerDoc.Paths.ContainsKey(swaggerDecorater.DisplayName))
+                if (swaggerDoc.Paths.ContainsKey(endpoint.DisplayName))
                 {
-                    pathItem = swaggerDoc.Paths[swaggerDecorater.DisplayName];
+                    pathItem = swaggerDoc.Paths[endpoint.DisplayName];
                 }
                 else 
                 {
                     pathItem = new OpenApiPathItem();                    
-                    swaggerDoc.Paths.Add(swaggerDecorater.DisplayName, pathItem);
+                    swaggerDoc.Paths.Add(endpoint.DisplayName, pathItem);
                 }
                               
                 // Add the operation
                 var operation = new OpenApiOperation 
                 {
-                    Description = swaggerDecorater.Description,
+                    Tags = new List<OpenApiTag> 
+                    { 
+                        new OpenApiTag 
+                        { 
+                            Name = swaggerDecorater.SwaggerPathName // confusingly, this seems to be what groups operations together into a path.
+                        } 
+                    },
+                    Description = swaggerDecorater.SwaggerOperationDescription,
                     Parameters = new List<OpenApiParameter> 
                     {
                         new OpenApiParameter 

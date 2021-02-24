@@ -7,31 +7,31 @@ namespace AJP.MediatrEndpoints
 {
     public static class EndpointExtensions
     {
-        public static IEndpointRouteBuilder MapGetToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string displayName, string description = "")
+        public static IEndpointRouteBuilder MapGetToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string swaggerPathName, string swaggerOperationDescription = "")
         {
             endpoints.MapGet(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>())
-                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Get, displayName, description));
+                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Get, swaggerPathName, swaggerOperationDescription));
             return endpoints;
         }
 
-        public static IEndpointRouteBuilder MapPostToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string displayName, string description = "")
+        public static IEndpointRouteBuilder MapPostToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string swaggerPathName, string swaggerOperationDescription = "")
         {
             endpoints.MapPost(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>())
-                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Post, displayName, description));
+                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Post, swaggerPathName, swaggerOperationDescription));
             return endpoints;
         }
 
-        public static IEndpointRouteBuilder MapPutToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string displayName, string description = "")
+        public static IEndpointRouteBuilder MapPutToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string swaggerPathName, string swaggerOperationDescription = "")
         {
             endpoints.MapPut(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>())
-                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Put, displayName, description));
+                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Put, swaggerPathName, swaggerOperationDescription));
             return endpoints;
         }
 
-        public static IEndpointRouteBuilder MapDeleteToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string displayName, string description = "")
+        public static IEndpointRouteBuilder MapDeleteToRequestHandler<TRequest, TResponse>(this IEndpointRouteBuilder endpoints, string pattern, string swaggerPathName, string swaggerOperationDescription = "")
         {
             endpoints.MapDelete(pattern, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>())
-                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Delete, displayName, description));
+                .WithMetadata(new SwaggerDecoraterAttribute(typeof(TRequest), typeof(TResponse), OperationType.Delete, swaggerPathName, swaggerOperationDescription));
             return endpoints;
         }
     }
