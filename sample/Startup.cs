@@ -73,8 +73,8 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });               
 
-                endpoints.MapGetToRequestHandler<GreetingRequest, GreetingResponse>("api/v1/greeting", "Greetings", "Description of greetings get endpoint blah blah");
-                endpoints.MapDeleteToRequestHandler<GreetingRequest, GreetingResponse>("api/v1/greeting/{id}", "Greetings", "Description of greetings delete endpoint blah blah");
+                endpoints.MapGetToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting", "Greetings", "Description of greetings get endpoint blah blah");
+                endpoints.MapDeleteToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting/{id}", "Greetings", "Description of greetings delete endpoint blah blah");
 
                 endpoints.MapGet("/Stats", async context =>
                 {
