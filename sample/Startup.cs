@@ -71,10 +71,11 @@ namespace mediatr_test
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Hello World!");
-                });               
+                });
 
-                endpoints.MapGetToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting", "Greetings", "Description of greetings get endpoint blah blah");
-                endpoints.MapDeleteToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting/{id}", "Greetings", "Description of greetings delete endpoint blah blah");
+                var greetingsEndpointGroup = new SwaggerDocumentationEndpointGroup("Greetings", "api/v1/greeting", "Group of endpoints related to greetings");
+                endpoints.MapGetToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting", greetingsEndpointGroup, "Description of greetings get endpoint blah blah");
+                endpoints.MapDeleteToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting/{id}", greetingsEndpointGroup, "Description of greetings delete endpoint blah blah");
 
                 endpoints.MapGet("/Stats", async context =>
                 {
