@@ -27,20 +27,22 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                                 
                 // Get existing path to add operation to, or create a new one
                 OpenApiPathItem pathItem;
-                if (swaggerDoc.Paths.ContainsKey(swaggerDecorater.EndpointGroup.Path))
+                if (swaggerDoc.Paths.ContainsKey(swaggerDecorater.Pattern))
                 {
-                    pathItem = swaggerDoc.Paths[swaggerDecorater.EndpointGroup.Path];
+                    pathItem = swaggerDoc.Paths[swaggerDecorater.Pattern];
                 }
                 else 
                 {
-                    pathItem = new OpenApiPathItem();                    
-                    //swaggerDoc.Paths.Add(swaggerDecorater.EndpointGroup.Path, pathItem);
+                    pathItem = new OpenApiPathItem();
                     swaggerDoc.Paths.Add(swaggerDecorater.Pattern, pathItem);
-                    swaggerDoc.Tags = new List<OpenApiTag> {
-                    new OpenApiTag{ 
-                        Name = swaggerDecorater.EndpointGroup.Name, 
-                        Description = swaggerDecorater.EndpointGroup.Description }
-                };
+                    swaggerDoc.Tags = new List<OpenApiTag> 
+                    {
+                        new OpenApiTag
+                        { 
+                            Name = swaggerDecorater.EndpointGroupName, 
+                            Description = swaggerDecorater.EndpointGroupDescription 
+                        }
+                    };
                 }
                               
                 // Add the operation
@@ -50,7 +52,7 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     { 
                         new OpenApiTag 
                         { 
-                            Name = swaggerDecorater.EndpointGroup.Name // confusingly, this seems to be what groups operations together into a path.
+                            Name = swaggerDecorater.EndpointGroupName // confusingly, this seems to be what groups operations together into a path.
                             //Description = $"description for {swaggerDecorater.EndpointGroup.Path}"
                         } 
                     },                    
@@ -84,20 +86,13 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     }
                 };
 
-                // TODO figure out how to add any path and query parameters which might exist?
-                operation.Parameters.Add(new OpenApiParameter
-                {
-                    In = ParameterLocation.Query,
-                    Name = "exampleQueryParam",
-                    Schema = new OpenApiSchema { Type = "string" }
-                });
-
-                operation.Parameters.Add(new OpenApiParameter
-                {
-                    In = ParameterLocation.Path,
-                    Name = "id",
-                    Schema = new OpenApiSchema { Type = "int" }
-                });
+                if (swaggerDecorater.AdditionalParameterDefinitions != null)
+                {                
+                    foreach (var additionalParameter in swaggerDecorater.AdditionalParameterDefinitions)
+                    {
+                        operation.Parameters.Add(additionalParameter);
+                    }
+                }
 
                 pathItem.Operations.Add(swaggerDecorater.OperationType, operation);
             }

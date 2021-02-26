@@ -11,6 +11,7 @@ using AJP.MediatrEndpoints.SwaggerSupport;
 using Microsoft.OpenApi.Models;
 using System;
 using mediatr_test.StatisticsGatherer;
+using System.Collections.Generic;
 
 namespace mediatr_test
 {
@@ -73,9 +74,23 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });
 
-                var greetingsEndpointGroup = new SwaggerDocumentationEndpointGroup("Greetings", "api/v1/greeting", "Group of endpoints related to greetings");
-                endpoints.MapGetToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting", greetingsEndpointGroup, "Description of greetings get endpoint blah blah");
-                endpoints.MapDeleteToRequestHandler<GreetingGetRequest, GreetingGetResponse>("api/v1/greeting/{id}", greetingsEndpointGroup, "Description of greetings delete endpoint blah blah");
+                //var idParameter = new OpenApiParameter
+                //{
+                //    In = ParameterLocation.Path,
+                //    Name = "id",
+                //    Schema = new OpenApiSchema { Type = "int" }
+                //};
+
+                var additionalParamsWithRouteId = AdditionalParameter.NewDictionary()
+                    .AddStringParam("id", AdditionalParameter.In.Route);
+
+                endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting", "Greetings", "description of the greetings path")
+                    .WithPost<GreetingGetRequest, GreetingGetResponse>("/", "description of the get all operation")
+                    .WithPost<GreetingGetRequest, GreetingGetResponse>("/{id}", "description of the get by id operation", 
+                        additionalParamsWithRouteId
+                        .AddBoolParam("IncludeOldGreetings", AdditionalParameter.In.Query)
+                        .AddEnumParam("Animal", typeof(Animals), AdditionalParameter.In.Query, true))
+                    .WithDelete<GreetingGetRequest, GreetingGetResponse>("/{id}", "used to delete a greeting", additionalParamsWithRouteId);
 
                 endpoints.MapGet("/Stats", async context =>
                 {
@@ -84,5 +99,13 @@ namespace mediatr_test
                 });
             });
         }
+    }
+
+    public enum Animals 
+    {
+        bear,
+        dog,
+        fox,
+        pig
     }
 }
