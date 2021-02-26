@@ -13,6 +13,7 @@ using System;
 using mediatr_test.StatisticsGatherer;
 using System.Collections.Generic;
 using AJP.MediatrEndpoints.EndpointRegistration;
+using mediatr_test.RequestHandlers.Accounts;
 
 namespace mediatr_test
 {
@@ -50,6 +51,7 @@ namespace mediatr_test
             services.AddSingleton<IStatisticsTaskQueue, StatisticsTaskQueue>();
             services.AddSingleton<IStatisticsQueuedHostedService, StatisticsQueuedHostedService>();
             services.AddHostedService(sp => (StatisticsQueuedHostedService)sp.GetService<IStatisticsQueuedHostedService>());
+            services.AddSingleton<IAccountRepository, AccountRepository>();
         }
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
