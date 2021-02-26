@@ -1,25 +1,24 @@
-﻿using AJP.MediatrEndpoints.SwaggerSupport;
+﻿using System.Collections.Generic;
+using AJP.MediatrEndpoints.SwaggerSupport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
 
-namespace AJP.MediatrEndpoints
+namespace AJP.MediatrEndpoints.EndpointRegistration
 {
     public class EndpointGroupMapper
     {
-        private readonly IEndpointRouteBuilder endpoints;
-        private readonly string path;
-        private readonly string name;
-        private readonly string description;
+        private readonly IEndpointRouteBuilder _endpoints;
+        private readonly string _path;
+        private readonly string _name;
+        private readonly string _description;
         
         public EndpointGroupMapper(IEndpointRouteBuilder endpoints, string path, string name, string description)
         {
-            this.endpoints = endpoints;
-            this.path = path;
-            this.name = name;
-            this.description = description;
+            _endpoints = endpoints;
+            _path = path;
+            _name = name;
+            _description = description;
         }        
 
         public EndpointGroupMapper WithGet<TRequest, TResponse>(string pattern, string swaggerOperationDescription = "", List<OpenApiParameter> additionalParameterDefinitions = null)
@@ -49,18 +48,19 @@ namespace AJP.MediatrEndpoints
         private void AddOperation<TRequest, TResponse>(OperationType operationType, string pattern, string swaggerOperationDescription = "", List<OpenApiParameter> additionalParameterDefinitions = null)
         {      
             var method = new[] { operationType.ToString().ToUpper() };
-            var fullPattern = $"{path}{pattern}";
-            endpoints.MapMethods(fullPattern, method, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>())
+            var fullPattern = $"{_path}{pattern}";
+            _endpoints.MapMethods(fullPattern, method, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>())
             .WithMetadata(
                 new SwaggerEndpointDecoraterAttribute
                 {
-                    EndpointGroupPath = path,
-                    EndpointGroupName = name,
-                    EndpointGroupDescription = description,
+                    EndpointGroupPath = _path,
+                    EndpointGroupName = _name,
+                    EndpointGroupDescription = _description,
                     Pattern = fullPattern,
                     OperationType = operationType,
                     RequestType = typeof(TRequest),
                     ResponseType = typeof(TResponse),
+                    SwaggerOperationDescription = swaggerOperationDescription,
                     AdditionalParameterDefinitions = additionalParameterDefinitions
                 });
         }

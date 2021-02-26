@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using mediatr_test.StatisticsGatherer;
 using System.Collections.Generic;
+using AJP.MediatrEndpoints.EndpointRegistration;
 
 namespace mediatr_test
 {

@@ -13,36 +13,34 @@ namespace mediatr_test.StatisticsGatherer
         public TimeSpan AverageRequestDuration { get; private set; }
         public TimeSpan AverageTimeBetweenRequests { get; private set; }
         public DateTime LastResponseSent { get; private set; }
-        public DateTime ServiceStarted { get; private set; }
+        public DateTime ServiceStarted { get; }
         public int TotalRequestsReceived { get; private set; }
 
         private readonly ILogger<StatisticsQueuedHostedService> _logger;
-        private IStatisticsTaskQueue _taskQueue { get; }
+        private IStatisticsTaskQueue TaskQueue { get; }
         private readonly List<(long TimeSinceLastRequestTicks, long DurationinTicks)> _durations = new List<(long TimeSinceLastRequestTicks, long DurationinTicks)>();
 
-        private const int windowSize = 10;
+        private const int WindowSize = 10;
 
         public StatisticsQueuedHostedService(IStatisticsTaskQueue taskQueue, ILogger<StatisticsQueuedHostedService> logger)
         {
             ServiceStarted = DateTime.UtcNow;
-            _taskQueue = taskQueue;
+            TaskQueue = taskQueue;
             _logger = logger;
         }
 
-        public object GetStats()
-        {            
-            return new
+        public object GetStats() =>
+            new
             {
                 FormatOfTimeSpans = "Days.Hours:Minutes:Seconds:Miliseconds",
                 AverageRequestDuration = AverageRequestDuration.ToString("dd\\.hh\\:mm\\:ss\\:fff"),
                 AverageTimeBetweenRequests = AverageTimeBetweenRequests.ToString("dd\\.hh\\:mm\\:ss\\:fff"),
-                AveragingWindow = windowSize,
-                LastResponseSent = LastResponseSent,
-                TotalRequestsReceived = TotalRequestsReceived,
+                AveragingWindow = WindowSize,
+                LastResponseSent,
+                TotalRequestsReceived,
                 ServiceStartedAt = ServiceStarted,
                 UpTime = (DateTime.UtcNow - ServiceStarted).ToString("dd\\.hh\\:mm\\:ss\\:fff")
             };
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -51,21 +49,22 @@ namespace mediatr_test.StatisticsGatherer
             await BackgroundProcessing(stoppingToken);
         }
 
-        private async Task BackgroundProcessing(CancellationToken stoppingToken)
+        private async Task BackgroundProcessing(CancellationToken cancelationToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancelationToken.IsCancellationRequested)
             {
-                var durationRecording = await _taskQueue.DequeueAsync(stoppingToken);
+                var durationRecording = await TaskQueue.DequeueAsync(cancelationToken);
 
+                await Task.Delay(25, cancelationToken); // Prevent CPU from spinning
+                
                 try
                 {
-                    // do stuff here
                     TotalRequestsReceived += 1;
                     
                     var timeSinceLastRequest = LastResponseSent != DateTime.MinValue ? durationRecording.ResponseSent - LastResponseSent : TimeSpan.FromMilliseconds(0);
 
                     _durations.Add((timeSinceLastRequest.Ticks, durationRecording.durationInTicks));
-                    if (_durations.Count > windowSize)
+                    if (_durations.Count > WindowSize)
                         _durations.RemoveAt(0);
 
                     var doubleAverageRequestDurationTicks = _durations.Select(x => x.DurationinTicks).Average();
