@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using mediatr_test.RequestHandlers.Accounts;
 
-namespace mediatr_test.RequestHandlers.Accounts
+namespace mediatr_test.Services
 {
     public class AccountRepository : IAccountRepository
     {
@@ -74,14 +75,6 @@ namespace mediatr_test.RequestHandlers.Accounts
                     SortCode = "140505",
                     AccountNumber = "72940752",
                     Balance = -991.87m,
-                    Blocked = false
-                },
-                new AccountDetails
-                {
-                    Id = "d627a2fa-b9b1-4cdf-b04b-048188d343e8",
-                    SortCode = "050415",
-                    AccountNumber = "24999723",
-                    Balance = 59160.00m,
                     Blocked = false
                 },
                 new AccountDetails

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using mediatr_test.Services;
 
 namespace mediatr_test.RequestHandlers.Accounts
 {

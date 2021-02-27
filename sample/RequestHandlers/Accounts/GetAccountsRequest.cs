@@ -2,12 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using mediatr_test.Services;
 
 namespace mediatr_test.RequestHandlers.Accounts
 {
     public class GetAccountsRequest : IRequest<IEnumerable<AccountDetails>>
     {
-        public string SortCodeMatchOptinal { get; set; }
+        public string SortCodeMatchOptional { get; set; }
 
         public string BalanceFilterOptional { get; set; }
     }
@@ -26,12 +27,12 @@ namespace mediatr_test.RequestHandlers.Accounts
             return request.BalanceFilterOptional switch
             {
                 string s when s.StartsWith("<") => Task.FromResult(
-                    _accountRepository.GetAll(request.SortCodeMatchOptinal,
+                    _accountRepository.GetAll(request.SortCodeMatchOptional,
                         balance => balance < decimal.Parse(s.Remove(0, 1)))),
                 string s when s.StartsWith("<") => Task.FromResult(
-                    _accountRepository.GetAll(request.SortCodeMatchOptinal,
+                    _accountRepository.GetAll(request.SortCodeMatchOptional,
                         balance => balance < decimal.Parse(s.Remove(0, 1)))),
-                _ => Task.FromResult(_accountRepository.GetAll(request.SortCodeMatchOptinal))
+                _ => Task.FromResult(_accountRepository.GetAll(request.SortCodeMatchOptional))
             };
         }
     }

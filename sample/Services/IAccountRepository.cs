@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using mediatr_test.RequestHandlers.Accounts;
 
-namespace mediatr_test.RequestHandlers.Accounts
+namespace mediatr_test.Services
 {
     public interface IAccountRepository
     {

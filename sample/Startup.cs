@@ -14,6 +14,7 @@ using mediatr_test.StatisticsGatherer;
 using System.Collections.Generic;
 using AJP.MediatrEndpoints.EndpointRegistration;
 using mediatr_test.RequestHandlers.Accounts;
+using mediatr_test.Services;
 
 namespace mediatr_test
 {
@@ -77,6 +78,10 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });
 
+                endpoints.MapGet("/api/v1/accounts", MediatrREndpointDelegateBuilder.Build<GetAccountsRequest, IEnumerable<AccountDetails>>());
+                
+                endpoints.MapGet("/api/v1/accounts/{id}", MediatrREndpointDelegateBuilder.Build<GetAccountByIdRequest, AccountDetails>());
+                
                 //var idParameter = new OpenApiParameter
                 //{
                 //    In = ParameterLocation.Path,
