@@ -12,9 +12,11 @@ using Microsoft.OpenApi.Models;
 using System;
 using mediatr_test.StatisticsGatherer;
 using System.Collections.Generic;
+using System.IO;
 using AJP.MediatrEndpoints.EndpointRegistration;
 using mediatr_test.RequestHandlers.Accounts;
 using mediatr_test.Services;
+using Microsoft.Extensions.FileProviders;
 
 namespace mediatr_test
 {
@@ -61,12 +63,20 @@ namespace mediatr_test
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(env.ContentRootPath, "wwwroot")),
+                RequestPath = "/static"
+            });
+            
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.InjectStylesheet("../static/swagger.css");
             });
 
             app.UseRouting();
@@ -78,7 +88,20 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });
 
-                endpoints.MapGet("/api/v1/accounts", MediatrREndpointDelegateBuilder.Build<GetAccountsRequest, IEnumerable<AccountDetails>>());
+                endpoints.MapGet("/api/v1/accounts", 
+                    MediatrREndpointDelegateBuilder.Build<GetAccountsRequest, IEnumerable<AccountDetails>>())
+                    .WithMetadata(new SwaggerEndpointDecoraterAttribute
+                    {
+                        //EndpointGroupPath = _path,
+                        //EndpointGroupName = _name,
+                        //EndpointGroupDescription = _description,
+                        Pattern = "/api/v1/accounts",
+                        OperationType = OperationType.Get,
+                        RequestType = typeof(GetAccountsRequest),
+                        ResponseType = typeof(IEnumerable<AccountDetails>),
+                        //SwaggerOperationDescription = swaggerOperationDescription,
+                        //AdditionalParameterDefinitions = additionalParameterDefinitions
+                    });
                 
                 endpoints.MapGet("/api/v1/accounts/{id}", MediatrREndpointDelegateBuilder.Build<GetAccountByIdRequest, AccountDetails>());
                 

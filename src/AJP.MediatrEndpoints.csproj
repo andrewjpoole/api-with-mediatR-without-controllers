@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AJP.JsonElementExtensions" Version="1.1.0" />
+    <PackageReference Include="AJP.JsonElementExtensions" Version="1.2.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="swashbuckle.aspnetcore" Version="6.0.7" />

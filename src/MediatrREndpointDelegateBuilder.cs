@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using AJP.MediatrEndpoints.PropertyAttributes;
 
 namespace AJP.MediatrEndpoints
 {
@@ -18,14 +19,17 @@ namespace AJP.MediatrEndpoints
         {
             return async context => {
                 var logger = context.RequestServices.GetService<ILogger<TRequest>>();
-                var mediator = context.RequestServices.GetService<IMediator>();
                 var requestProcessors = context.RequestServices.GetService<IMediatrEndpointsProcessors>();
-                Stopwatch stopwatch;
+                var mediator = context.RequestServices.GetService<IMediator>();
+
+                if (mediator is null)
+                    throw new ApplicationException("Could not resolve IMediator from DI container, ensure services.AddMediatR(typeof(Startup)); or similar is configured in Startup->ConfigureServices().");
+                
                 try
                 {
                     requestProcessors?.PreProcess(context, logger);
 
-                    stopwatch = new Stopwatch();
+                    var stopwatch = new Stopwatch();
                     stopwatch.Start();
                     
                     // Start by deserialising the body
@@ -33,33 +37,25 @@ namespace AJP.MediatrEndpoints
                     var bodyJson = await streamReader.ReadToEndAsync();
                     if (string.IsNullOrEmpty(bodyJson))
                         bodyJson = "{}";
+                    
                     var requestObject = JsonDocument.Parse(bodyJson).RootElement;
-                    var requestObjectProps = requestObject.GetProperties().ToList();
                     
                     // Loop through the public props of the TRequest and try to populate them from body, then route, then headers
-                    var requiredProps = typeof(TRequest).GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
-                    foreach (var requiredProp in requiredProps)
+                    var requiredPropsOnTRequest = typeof(TRequest).GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+                    foreach (var requiredProp in requiredPropsOnTRequest)
                     {
                         // Check if we already have a property with a value from the body
-                        if (requestObjectProps.Any(x => x.Name == requiredProp.Name))
+                        if (requestObject.TryGetProperty(requiredProp.Name, out var matchedProperty))
                         {
-                            var potentialMatch = requestObjectProps.Single(x => x.Name == requiredProp.Name);
-                            if (potentialMatch.Value != null)
-                            {
-                                if (potentialMatch.Value.GetType().IsAssignableFrom(requiredProp.PropertyType))
-                                {
-                                    continue; // looks good, move on
-                                }
-                            }
+                            // RequiredProperty already exists on the body
+                            continue;
                         }
 
                         // Check if there is a matching value from the route
                         if (context.Request.RouteValues.ContainsKey(requiredProp.Name))
                         {
-                            var valueCastToCorrectType = context.Request.RouteValues[requiredProp.Name] as string;
-                            
                             requestObject = requestObject.AddProperty(requiredProp.Name,
-                                valueCastToCorrectType);
+                                context.Request.RouteValues[requiredProp.Name]);
                             continue;
                         }
 
@@ -70,38 +66,23 @@ namespace AJP.MediatrEndpoints
                                 context.Request.Headers[requiredProp.Name].FirstOrDefault());
                             continue;
                         }
-                        
-                        // check if it is optional??
-                        
+
+                        if (requiredProp.GetCustomAttributes(typeof(OptionalPropertyAttribute)).Any())
+                        {
+                            // Property is optional, dont worry
+                            continue;
+                        }
+
                         // Cant find a match
                         throw new BadHttpRequestException($"Missing Property {requiredProp.Name}");
                     }
 
-                    //var details = new ApiRequestDetails(context.Request.Headers, context.Request.QueryString, context.Request.RouteValues);
-                    //var data = await context.Request.ReadFromJsonAsync<TRequest>();
-                    
-                    // var request = new ApiRequestWrapper<TRequest, TResponse>
-                    // {
-                    //     Details = details,
-                    //     Data = data
-                    // };
-                    //var mediatrResponseWrapper = await mediator.Send(request) as ApiResponseWrapper<TResponse>;
-
                     var mediatrRequest = requestObject.ToObject<TRequest>();
                     var mediatrResponse = (TResponse) await mediator.Send(mediatrRequest);
-                    //var mediatrResponseWrapper = await mediator.Send(request) as ApiResponseWrapper<TResponse>;
-
-                    // foreach (var header in mediatrResponseWrapper.Headers)
-                    // {
-                    //     context.Response.Headers.Add(header.Key, header.Value);
-                    // }
-                    //
-                    // context.Response.StatusCode = mediatrResponseWrapper.StatusCode;
-
+                    
                     stopwatch.Stop();
                     requestProcessors?.PostProcess(context, stopwatch.Elapsed, logger);
-                    //await context.Response.WriteAsJsonAsync<TResponse>(mediatrResponseWrapper.Data);
-                    await context.Response.WriteAsJsonAsync<TResponse>(mediatrResponse);
+                    await context.Response.WriteAsJsonAsync(mediatrResponse);
                 }
                 catch (JsonException ex)
                 {
