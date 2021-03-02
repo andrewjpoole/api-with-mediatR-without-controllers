@@ -23,16 +23,19 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
+            swaggerDoc.Tags = new List<OpenApiTag>();
             foreach (var endpoint in _endpointDataSource.Endpoints)
             {
-                var swaggerDecorator = endpoint.Metadata.GetMetadata<SwaggerEndpointDecoraterAttribute>();
+                var swaggerDecorator = endpoint.Metadata.GetMetadata<SwaggerEndpointDecoratorAttribute>();
                 if (swaggerDecorator == null)
                     continue;
                 
-                var requestSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.RequestType, context.SchemaRepository);
+                //var requestSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.RequestType, context.SchemaRepository);
                 var responseSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.ResponseType, context.SchemaRepository);
+                var endpointSwaggerDescription =
+                    (SwaggerDescriptionAttribute)swaggerDecorator.RequestType.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
 
-                var bodyExampeObject = JsonDocument.Parse("{}").RootElement;
+                var bodyExampleObject = JsonDocument.Parse("{}").RootElement;
                 
                 // Get properties on requestType
                 var propsLeftForBody = 0;
@@ -41,35 +44,39 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 var requestTypePropParamDefinitions = new List<OpenApiParameter>();
                 foreach(var requestTypeProp in requestTypeProps)
                 {
-                    var isRouteParam = requestTypeProp.GetCustomAttributes(typeof(RouteParameterAttribute)).Any();
-                    var isHeaderParam = requestTypeProp.GetCustomAttributes(typeof(HeaderParameterAttribute)).Any();
+                    var isQueryParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerQueryParameterAttribute)).Any();
+                    var isRouteParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerRouteParameterAttribute)).Any();
+                    var isHeaderParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerHeaderParameterAttribute)).Any();
                     var isOptionalParam = requestTypeProp.GetCustomAttributes(typeof(OptionalPropertyAttribute)).Any();
                     var swaggerDescription = (SwaggerDescriptionAttribute)requestTypeProp.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
-                    var swaggerExample = (SwaggerExampleAttribute)requestTypeProp.GetCustomAttributes(typeof(SwaggerExampleAttribute)).FirstOrDefault();
+                    var swaggerExample = (SwaggerExampleValueAttribute)requestTypeProp.GetCustomAttributes(typeof(SwaggerExampleValueAttribute)).FirstOrDefault();
 
                     // Render props to the body unless instructed to use route or header OR if GET
                     if (!isRouteParam && !isHeaderParam && swaggerDecorator.OperationType != OperationType.Get)
                     {
                         var exampleValue = swaggerExample?.Example ?? GetJsonSchemaTypeString(requestTypeProp);
-                        bodyExampeObject = bodyExampeObject.AddProperty(requestTypeProp.Name, exampleValue);
+                        bodyExampleObject = bodyExampleObject.AddProperty(requestTypeProp.Name, exampleValue);
                         propsLeftForBody += 1;
                         continue;
                     }
                     
-                    // if not route or header, add property to json object for the body example
-                    
-                    
-                    // is enum?
-                    if (requestTypeProp.PropertyType == typeof(Enum))
+                    // If propertyType is an enum then render the names
+                    OpenApiSchema enumSchema = null;
+                    if (requestTypeProp.PropertyType.IsEnum)
                     {
-                        
+                        var enumNames = Enum.GetNames(requestTypeProp.PropertyType).ToList().Select(x => new OpenApiString(x)).Cast<IOpenApiAny>().ToList();
+                        enumSchema = new OpenApiSchema {Type = "string", Enum = enumNames};
                     }
-
+                    
                     requestTypePropParamDefinitions.Add(new OpenApiParameter
                     {
-                        In = ParameterLocation.Query,
+                        In = GetParameterLocation(isQueryParam, isRouteParam, isHeaderParam),
                         Name = requestTypeProp.Name,
-                        Schema = new OpenApiSchema { Type = GetJsonSchemaTypeString(requestTypeProp) },
+                        Schema = enumSchema ?? new OpenApiSchema
+                        {
+                            Type = GetJsonSchemaTypeString(requestTypeProp), 
+                            Example = new OpenApiString(swaggerExample?.Example)
+                        },
                         Required = !isOptionalParam,
                         Deprecated = swaggerDescription?.Deprecated ?? false,
                         Description = swaggerDescription?.Description
@@ -86,14 +93,11 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 {
                     pathItem = new OpenApiPathItem();
                     swaggerDoc.Paths.Add(swaggerDecorator.Pattern, pathItem);
-                    swaggerDoc.Tags = new List<OpenApiTag> 
-                    {
-                        new OpenApiTag
-                        { 
-                            Name = swaggerDecorator.EndpointGroupName, 
-                            Description = swaggerDecorator.EndpointGroupDescription 
-                        }
-                    };
+                    swaggerDoc.Tags.Add(new()
+                    { 
+                        Name = swaggerDecorator.EndpointGroupName, 
+                        Description = swaggerDecorator.EndpointGroupDescription
+                    });
                 }
                               
                 // Add the operation
@@ -101,16 +105,16 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 {                    
                     Tags = new List<OpenApiTag> 
                     { 
-                        new OpenApiTag 
+                        new()
                         { 
                             Name = swaggerDecorator.EndpointGroupName // confusingly, this seems to be what groups operations together into a path.
                         } 
                     },                    
-                    Description = swaggerDecorator.SwaggerOperationDescription,
+                    Description = endpointSwaggerDescription?.Description,
                     Parameters = new List<OpenApiParameter>(),
                     Responses = new OpenApiResponses 
                     {
-                        ["200"] = new OpenApiResponse
+                        ["200"] = new()
                         {
                             Description = "OK",
                             Content = new Dictionary<string, OpenApiMediaType>
@@ -133,10 +137,9 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                             {
                                 "default", new OpenApiMediaType
                                 {
-                                    //Schema = requestSchema
                                     Schema = new OpenApiSchema
                                     {
-                                        Default = new OpenApiString(bodyExampeObject.GetRawText()),
+                                        Default = new OpenApiString(bodyExampleObject.GetRawText()),
                                     }
                                 }
                             }
@@ -172,6 +175,16 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
             if (typeof(IEnumerable).IsAssignableFrom(type))
                 return "array";
             return "object";
+        }
+
+        private ParameterLocation GetParameterLocation(bool isQuery, bool isRoute, bool isHeader)
+        {
+            if (isHeader)
+                return ParameterLocation.Header;
+            else if (isRoute)
+                return ParameterLocation.Path;
+            
+            return ParameterLocation.Query;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace AJP.MediatrEndpoints.PropertyAttributes
         public string Description { get; }
         public bool Deprecated { get; }
 
-        public SwaggerDescriptionAttribute(string description, bool deprecated)
+        public SwaggerDescriptionAttribute(string description, bool deprecated = false)
         {
             Description = description;
             Deprecated = deprecated;

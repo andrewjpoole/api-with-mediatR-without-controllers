@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -39,6 +40,8 @@ namespace AJP.MediatrEndpoints
                         bodyJson = "{}";
                     
                     var requestObject = JsonDocument.Parse(bodyJson).RootElement;
+
+                    var queryStringValues = SplitQueryString(context.Request.QueryString);
                     
                     // Loop through the public props of the TRequest and try to populate them from body, then route, then headers
                     var requiredPropsOnTRequest = typeof(TRequest).GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
@@ -56,6 +59,14 @@ namespace AJP.MediatrEndpoints
                         {
                             requestObject = requestObject.AddProperty(requiredProp.Name,
                                 context.Request.RouteValues[requiredProp.Name]);
+                            continue;
+                        }
+                        
+                        // Check the query string
+                        if (queryStringValues.ContainsKey(requiredProp.Name))
+                        {
+                            requestObject = requestObject.AddProperty(requiredProp.Name,
+                                queryStringValues[requiredProp.Name]);
                             continue;
                         }
 
@@ -101,6 +112,22 @@ namespace AJP.MediatrEndpoints
                     requestProcessors?.ErrorProcess(ex, context, logger);
                 }
             };
+        }
+
+        private static Dictionary<string, string> SplitQueryString(QueryString queryString)
+        {
+            var queryStringValues = new Dictionary<string, string>();
+            if (!queryString.HasValue)
+                return queryStringValues;
+
+            var queryStringSplit = queryString.Value.Replace("?", string.Empty).Split("&");
+            foreach (var queryPair in queryStringSplit)
+            {
+                var pair = queryPair.Split("=");
+                queryStringValues.Add(pair[0], pair[1]);
+            }
+
+            return queryStringValues;
         }
     }
     

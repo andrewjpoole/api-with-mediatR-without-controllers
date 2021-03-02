@@ -2,11 +2,11 @@
 
 namespace AJP.MediatrEndpoints.PropertyAttributes
 {
-    public class SwaggerExampleAttribute: Attribute
+    public class SwaggerExampleValueAttribute: Attribute
     {
         public string Example { get; }
 
-        public SwaggerExampleAttribute(string example)
+        public SwaggerExampleValueAttribute(string example)
         {
             Example = example;
         }

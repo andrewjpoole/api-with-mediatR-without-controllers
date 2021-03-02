@@ -9,7 +9,7 @@ namespace mediatr_test.RequestHandlers.Accounts
 {
     public class UpdateAccountStatusRequest : IRequest<AccountDetails>
     {
-        [RouteParameter]
+        [SwaggerRouteParameter]
         public string Id { get; set; }
         public bool Blocked { get; set; }
     }

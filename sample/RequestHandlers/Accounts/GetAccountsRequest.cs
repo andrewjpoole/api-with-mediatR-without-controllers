@@ -8,15 +8,20 @@ using mediatr_test.Services;
 
 namespace mediatr_test.RequestHandlers.Accounts
 {
+    [SwaggerDescription("Method which gets account details")]
     public class GetAccountsRequest : IRequest<IEnumerable<AccountDetails>>
     {
         [OptionalProperty]
-        [SwaggerExample("2099")]
-        public string SortCodeMatchOptional { get; set; }
+        [SwaggerExampleValue("2099")]
+        [SwaggerDescription("Use this optional parameter to filter results by sortcode, uses StartsWith")]
+        public string SortCodeMatch { get; set; }
 
         [OptionalProperty]
-        [SwaggerExample("<-1000")]
-        public string BalanceFilterOptional { get; set; }
+        [SwaggerExampleValue("<-1000")]
+        [SwaggerDescription("Use this optional parameter to filter results by balance e.g. <-1000 will return accounts with a balance of less than £-1000")]
+        public string BalanceFilter { get; set; }
+
+        [OptionalProperty] public AccountStatus AccountStatusFilter { get; set; } = AccountStatus.Any;
     }
 
     public class GetAccountsRequestHandler : IRequestHandler<GetAccountsRequest, IEnumerable<AccountDetails>>
@@ -30,15 +35,15 @@ namespace mediatr_test.RequestHandlers.Accounts
         
         public Task<IEnumerable<AccountDetails>> Handle(GetAccountsRequest request, CancellationToken cancellationToken)
         {
-            return request.BalanceFilterOptional switch
+            return request.BalanceFilter switch
             {
                 string s when s.StartsWith("<") => Task.FromResult(
-                    _accountRepository.GetAll(request.SortCodeMatchOptional,
-                        balance => balance < decimal.Parse(s.Remove(0, 1)))),
+                    _accountRepository.GetAll(request.SortCodeMatch,
+                        balance => balance < decimal.Parse(s.Remove(0, 1)), request.AccountStatusFilter)),
                 string s when s.StartsWith(">") => Task.FromResult(
-                    _accountRepository.GetAll(request.SortCodeMatchOptional,
-                        balance => balance > decimal.Parse(s.Remove(0, 1)))),
-                _ => Task.FromResult(_accountRepository.GetAll(request.SortCodeMatchOptional))
+                    _accountRepository.GetAll(request.SortCodeMatch,
+                        balance => balance > decimal.Parse(s.Remove(0, 1)), request.AccountStatusFilter)),
+                _ => Task.FromResult(_accountRepository.GetAll(request.SortCodeMatch, null, request.AccountStatusFilter))
             };
         }
     }

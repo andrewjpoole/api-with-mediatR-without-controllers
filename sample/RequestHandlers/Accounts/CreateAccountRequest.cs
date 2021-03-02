@@ -28,7 +28,7 @@ namespace mediatr_test.RequestHandlers.Accounts
                 SortCode = request.SortCode,
                 AccountNumber = request.AccountNumber,
                 Balance = request.Balance,
-                Blocked = false
+                Status = AccountStatus.Unblocked
             }));
         }
     }

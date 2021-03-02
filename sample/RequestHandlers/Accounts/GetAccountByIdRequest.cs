@@ -8,7 +8,7 @@ namespace mediatr_test.RequestHandlers.Accounts
 {
     public class GetAccountByIdRequest : IRequest<AccountDetails>
     {
-        [RouteParameter]
+        [SwaggerRouteParameter]
         public string Id { get; set; }
     }
     

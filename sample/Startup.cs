@@ -13,8 +13,10 @@ using System;
 using mediatr_test.StatisticsGatherer;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json.Serialization;
 using AJP.MediatrEndpoints.EndpointRegistration;
 using mediatr_test.RequestHandlers.Accounts;
+using mediatr_test.RequestHandlers.Greeting;
 using mediatr_test.Services;
 using Microsoft.Extensions.FileProviders;
 
@@ -44,10 +46,10 @@ namespace mediatr_test
                         Url = new Uri("https://opensource.org/licenses/MIT"),
                     }
                 });
-
+                
                 c.DocumentFilter<AddEndpointsDocumentFilter>();
             });
-
+            
             services.AddLogging();
             services.AddMediatR(typeof(Startup));
             services.AddSingleton<IMediatrEndpointsProcessors, RequestProcessors>();
@@ -88,55 +90,22 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });
 
-                endpoints.MapGet("/api/v1/accounts", 
-                    MediatrREndpointDelegateBuilder.Build<GetAccountsRequest, IEnumerable<AccountDetails>>())
-                    .WithMetadata(new SwaggerEndpointDecoraterAttribute
-                    {
-                        //EndpointGroupPath = _path,
-                        //EndpointGroupName = _name,
-                        //EndpointGroupDescription = _description,
-                        Pattern = "/api/v1/accounts",
-                        OperationType = OperationType.Get,
-                        RequestType = typeof(GetAccountsRequest),
-                        ResponseType = typeof(IEnumerable<AccountDetails>),
-                        //SwaggerOperationDescription = swaggerOperationDescription,
-                        //AdditionalParameterDefinitions = additionalParameterDefinitions
-                    });
-                
-                endpoints.MapGet("/api/v1/accounts/{id}", MediatrREndpointDelegateBuilder.Build<GetAccountByIdRequest, AccountDetails>());
-                
-                //var idParameter = new OpenApiParameter
-                //{
-                //    In = ParameterLocation.Path,
-                //    Name = "id",
-                //    Schema = new OpenApiSchema { Type = "int" }
-                //};
-
-                var additionalParamsWithRouteId = AdditionalParameter.NewDictionary()
-                    .AddStringParam("id", AdditionalParameter.In.Route);
-
+                endpoints.MapGroupOfEndpointsForAPath("/api/va/accounts", "Accounts", "everything to do with accounts")
+                    .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
+                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{id}")
+                    .WithPost<CreateAccountRequest, AccountDetails>("/")
+                    .WithDelete<GetAccountByIdRequest, AccountDetails>("/{id}")
+                    .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{id}");
+               
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting", "Greetings", "description of the greetings path")
-                    .WithPost<GreetingGetRequest, GreetingGetResponse>("/", "description of the get all operation")
-                    .WithPost<GreetingGetRequest, GreetingGetResponse>("/{id}", "description of the get by id operation", 
-                        additionalParamsWithRouteId
-                        .AddBoolParam("IncludeOldGreetings", AdditionalParameter.In.Query)
-                        .AddEnumParam("Animal", typeof(Animals), AdditionalParameter.In.Query, true))
-                    .WithDelete<GreetingGetRequest, GreetingGetResponse>("/{id}", "used to delete a greeting", additionalParamsWithRouteId);
+                    .WithPost<GreetingRequest, GreetingResponse>("/");
 
                 endpoints.MapGet("/Stats", async context =>
                 {
                     var statsGatherer = context.RequestServices.GetService<IStatisticsQueuedHostedService>();
-                    await context.Response.WriteAsJsonAsync(statsGatherer.GetStats());
+                    await context.Response.WriteAsJsonAsync(statsGatherer?.GetStats());
                 });
             });
         }
-    }
-
-    public enum Animals 
-    {
-        bear,
-        dog,
-        fox,
-        pig
     }
 }

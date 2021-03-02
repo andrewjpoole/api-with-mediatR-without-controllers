@@ -3,7 +3,7 @@
 namespace AJP.MediatrEndpoints.PropertyAttributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class RouteParameterAttribute: Attribute
+    public class SwaggerHeaderParameterAttribute: Attribute
     {
     }
 }

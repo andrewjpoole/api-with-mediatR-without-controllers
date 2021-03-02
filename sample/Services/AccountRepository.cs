@@ -19,7 +19,7 @@ namespace mediatr_test.Services
                     SortCode = "040405",
                     AccountNumber = "15846476",
                     Balance = 58228181.34m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -27,7 +27,7 @@ namespace mediatr_test.Services
                     SortCode = "040405",
                     AccountNumber = "23581953",
                     Balance = 3613.99m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -35,7 +35,7 @@ namespace mediatr_test.Services
                     SortCode = "040405",
                     AccountNumber = "92701053",
                     Balance = 92.11m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -43,7 +43,7 @@ namespace mediatr_test.Services
                     SortCode = "229940",
                     AccountNumber = "85548970",
                     Balance = 3021.00m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -51,7 +51,7 @@ namespace mediatr_test.Services
                     SortCode = "209940",
                     AccountNumber = "82539351",
                     Balance = 88841746.86m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -59,7 +59,7 @@ namespace mediatr_test.Services
                     SortCode = "209941",
                     AccountNumber = "46385481",
                     Balance = 7.85m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -67,7 +67,7 @@ namespace mediatr_test.Services
                     SortCode = "209940",
                     AccountNumber = "92114140",
                     Balance = -616375.0m,
-                    Blocked = false
+                    Status = AccountStatus.Blocked
                 },
                 new AccountDetails
                 {
@@ -75,7 +75,7 @@ namespace mediatr_test.Services
                     SortCode = "140505",
                     AccountNumber = "72940752",
                     Balance = -991.87m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -83,7 +83,7 @@ namespace mediatr_test.Services
                     SortCode = "160405",
                     AccountNumber = "82956315",
                     Balance = -3.80m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 },
                 new AccountDetails
                 {
@@ -91,14 +91,14 @@ namespace mediatr_test.Services
                     SortCode = "040405",
                     AccountNumber = "98167665",
                     Balance = 75_559_726.00m,
-                    Blocked = false
+                    Status = AccountStatus.Unblocked
                 }
             }.ToDictionary(x => x.Id);
         }
         
         public AccountDetails GetById(string id) => _accounts[id];
 
-        public IEnumerable<AccountDetails> GetAll(string sortcode = "", Func<decimal, bool> balanceCriteria = null)
+        public IEnumerable<AccountDetails> GetAll(string sortcode = "", Func<decimal, bool> balanceCriteria = null, AccountStatus statusFilter = AccountStatus.Any)
         {
             var filteredAccounts = _accounts.Select(x => x.Value);
             
@@ -107,6 +107,9 @@ namespace mediatr_test.Services
 
             if (balanceCriteria != null)
                 filteredAccounts = filteredAccounts.Where(x => balanceCriteria(x.Balance) == true).ToList();
+
+            if (statusFilter != AccountStatus.Any)
+                filteredAccounts = filteredAccounts.Where(x => x.Status == statusFilter);
 
             return filteredAccounts;
         }
@@ -135,7 +138,7 @@ namespace mediatr_test.Services
             if (!_accounts.ContainsKey(id) == false)
                 return null;
 
-            _accounts[id].Blocked = true;
+            _accounts[id].Status = AccountStatus.Blocked;
             return _accounts[id];
         }
 
@@ -144,7 +147,7 @@ namespace mediatr_test.Services
             if (!_accounts.ContainsKey(id) == false)
                 return null;
 
-            _accounts[id].Blocked = false;
+            _accounts[id].Status = AccountStatus.Unblocked;
             return _accounts[id];
         }
     }
