@@ -43,53 +43,55 @@ namespace AJP.MediatrEndpoints
 
                     var queryStringValues = SplitQueryString(context.Request.QueryString);
                     
-                    // Loop through the public props of the TRequest and try to populate them from body, then route, then headers
-                    var requiredPropsOnTRequest = typeof(TRequest).GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
-                    foreach (var requiredProp in requiredPropsOnTRequest)
+                    // Loop through the public props of the TRequest and try to populate them from body, then route, querystring and headers
+                    var propsOnTRequest = typeof(TRequest).GetPublicInstanceProperties();
+                    foreach (var propOnTRequest in propsOnTRequest)
                     {
                         // Check if we already have a property with a value from the body
-                        if (requestObject.TryGetProperty(requiredProp.Name, out var matchedProperty))
+                        if (requestObject.TryGetProperty(propOnTRequest.Name, out _))
                         {
-                            // RequiredProperty already exists on the body
                             continue;
                         }
 
                         // Check if there is a matching value from the route
-                        if (context.Request.RouteValues.ContainsKey(requiredProp.Name))
+                        if (context.Request.RouteValues.ContainsKey(propOnTRequest.Name))
                         {
-                            requestObject = requestObject.AddProperty(requiredProp.Name,
-                                context.Request.RouteValues[requiredProp.Name]);
+                            requestObject = requestObject.AddProperty(propOnTRequest.Name,
+                                context.Request.RouteValues[propOnTRequest.Name]);
                             continue;
                         }
                         
                         // Check the query string
-                        if (queryStringValues.ContainsKey(requiredProp.Name))
+                        if (queryStringValues.ContainsKey(propOnTRequest.Name))
                         {
-                            requestObject = requestObject.AddProperty(requiredProp.Name,
-                                queryStringValues[requiredProp.Name]);
+                            requestObject = requestObject.AddProperty(propOnTRequest.Name,
+                                queryStringValues[propOnTRequest.Name]);
                             continue;
                         }
 
                         // Check if there is a matching value from the request headers
-                        if (context.Request.Headers.ContainsKey(requiredProp.Name))
+                        if (context.Request.Headers.ContainsKey(propOnTRequest.Name))
                         {
-                            requestObject = requestObject.AddProperty(requiredProp.Name,
-                                context.Request.Headers[requiredProp.Name].FirstOrDefault());
+                            requestObject = requestObject.AddProperty(propOnTRequest.Name,
+                                context.Request.Headers[propOnTRequest.Name].FirstOrDefault());
                             continue;
                         }
 
-                        if (requiredProp.GetCustomAttributes(typeof(OptionalPropertyAttribute)).Any())
+                        // Property not found so far, check if its optional
+                        if (propOnTRequest.GetCustomAttributes(typeof(OptionalPropertyAttribute)).Any())
                         {
-                            // Property is optional, dont worry
                             continue;
                         }
 
-                        // Cant find a match
-                        throw new BadHttpRequestException($"Missing Property {requiredProp.Name}");
+                        // Cant find a match for required property
+                        throw new BadHttpRequestException($"Missing Property {propOnTRequest.Name}");
                     }
 
-                    var mediatrRequest = requestObject.ToObject<TRequest>();
+                    var mediatrRequest = requestObject.ConvertToObject<TRequest>();
                     var mediatrResponse = (TResponse) await mediator.Send(mediatrRequest);
+
+                    if (mediatrResponse.HasStatusCodeProperty(out var statusCode))
+                        context.Response.StatusCode = statusCode;
                     
                     stopwatch.Stop();
                     requestProcessors?.PostProcess(context, stopwatch.Elapsed, logger);
@@ -99,7 +101,7 @@ namespace AJP.MediatrEndpoints
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     requestProcessors?.ErrorProcess(ex, context, logger);
-                    await context.Response.WriteAsync("Bad request, body was not valid json");
+                    await context.Response.WriteAsync("Bad request, body is not valid json");
                 }
                 catch (BadHttpRequestException ex)
                 {
@@ -110,6 +112,7 @@ namespace AJP.MediatrEndpoints
                 catch (Exception ex)
                 {
                     requestProcessors?.ErrorProcess(ex, context, logger);
+                    // Will return a 500 internal server error
                 }
             };
         }
@@ -129,23 +132,22 @@ namespace AJP.MediatrEndpoints
 
             return queryStringValues;
         }
-    }
-    
-    public static partial class JsonExtensions
-    {
-        public static T ToObject<T>(this JsonElement element, JsonSerializerOptions options = null)
-        {
-            var bufferWriter = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(bufferWriter))
-                element.WriteTo(writer);
-            return JsonSerializer.Deserialize<T>(bufferWriter.WrittenSpan, options);
-        }
 
-        public static T ToObject<T>(this JsonDocument document, JsonSerializerOptions options = null)
+        private static IEnumerable<PropertyInfo> GetPublicInstanceProperties(this Type type)
         {
-            if (document == null)
-                throw new ArgumentNullException(nameof(document));
-            return document.RootElement.ToObject<T>(options);
-        }       
+            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
+        }
+        
+        private static bool HasStatusCodeProperty<TResponse>(this TResponse response, out int statusCode)
+        {
+            statusCode = -1;
+            var props = typeof(TResponse).GetPublicInstanceProperties();
+            var statusCodeProp = props.FirstOrDefault(x => x.Name == "StatusCode");
+            if (statusCodeProp == null)
+                return false;
+
+            statusCode = (int)statusCodeProp.GetValue(response);
+            return true;
+        }
     }
 }
