@@ -17,5 +17,6 @@ and in a real-world use case, would anything be missing?
 ## Todo
 
 1) readme
+2) fix route value issue from swagger
 3) possibly look at using mediatr behaviour pipeline for outbound status code + headers etc?
 4) hook up statsGatherer to dotnet perf counters? 

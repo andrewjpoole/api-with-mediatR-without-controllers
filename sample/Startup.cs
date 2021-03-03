@@ -13,6 +13,7 @@ using System;
 using mediatr_test.StatisticsGatherer;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json.Serialization;
 using AJP.MediatrEndpoints.EndpointRegistration;
 using mediatr_test.RequestHandlers.Accounts;
@@ -90,12 +91,12 @@ namespace mediatr_test
                     await context.Response.WriteAsync("Hello World!");
                 });
 
-                endpoints.MapGroupOfEndpointsForAPath("/api/va/accounts", "Accounts", "everything to do with accounts")
+                endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
-                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{id}")
+                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}") // route parameter name must match property on TRequest, including case!! otherwise swagger breaks
                     .WithPost<CreateAccountRequest, AccountDetails>("/")
-                    .WithDelete<GetAccountByIdRequest, AccountDetails>("/{id}")
-                    .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{id}");
+                    .WithDelete<DeleteAccountByIdRequest, AccountDetails>("/{Id}")
+                    .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
                
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting", "Greetings", "description of the greetings path")
                     .WithPost<GreetingRequest, GreetingResponse>("/");
@@ -104,6 +105,16 @@ namespace mediatr_test
                 {
                     var statsGatherer = context.RequestServices.GetService<IStatisticsQueuedHostedService>();
                     await context.Response.WriteAsJsonAsync(statsGatherer?.GetStats());
+                });
+
+                endpoints.MapGet("/Endpoints", async context =>
+                {
+                    var sb = new StringBuilder();
+                    var endpointDataSource = context.RequestServices.GetService<EndpointDataSource>();
+                    foreach (var endpoint in endpointDataSource.Endpoints)
+                        sb.AppendLine($"{endpoint.DisplayName} {endpoint.RequestDelegate}");
+                    
+                    await context.Response.WriteAsync(sb.ToString());
                 });
             });
         }

@@ -135,7 +135,7 @@ namespace mediatr_test.Services
 
         public AccountDetails Block(string id)
         {
-            if (!_accounts.ContainsKey(id) == false)
+            if (_accounts.ContainsKey(id) == false)
                 return null;
 
             _accounts[id].Status = AccountStatus.Blocked;

@@ -16,7 +16,7 @@ namespace AJP.MediatrEndpoints.EndpointRegistration
         public EndpointGroupMapper(IEndpointRouteBuilder endpoints, string path, string name, string description)
         {
             _endpoints = endpoints;
-            _path = path;
+            _path = AddLeadingSlashIfNotPresent(path);
             _name = name;
             _description = description;
         }        
@@ -48,7 +48,7 @@ namespace AJP.MediatrEndpoints.EndpointRegistration
         private void AddOperation<TRequest, TResponse>(OperationType operationType, string pattern, List<OpenApiParameter> additionalParameterDefinitions = null)
         {      
             var method = new[] { operationType.ToString().ToUpper() };
-            var fullPattern = $"{_path}{pattern}";
+            var fullPattern = $"{_path}{AddLeadingSlashIfNotPresent(pattern)}";
             _endpoints.MapMethods(fullPattern, method, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>())
             .WithMetadata(
                 new SwaggerEndpointDecoratorAttribute
@@ -62,6 +62,11 @@ namespace AJP.MediatrEndpoints.EndpointRegistration
                     ResponseType = typeof(TResponse),
                     AdditionalParameterDefinitions = additionalParameterDefinitions
                 });
+        }
+
+        private string AddLeadingSlashIfNotPresent(string path)
+        {
+            return !path.StartsWith("/") ? $"/{path}" : path;
         }
     }
 }

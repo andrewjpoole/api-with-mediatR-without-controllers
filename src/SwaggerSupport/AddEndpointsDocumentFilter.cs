@@ -35,12 +35,11 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 var endpointSwaggerDescription =
                     (SwaggerDescriptionAttribute)swaggerDecorator.RequestType.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
 
+                // Get an empty json element to add body parameters to
                 var bodyExampleObject = JsonDocument.Parse("{}").RootElement;
                 
                 // Get properties on requestType
-                var propsLeftForBody = 0;
-                var requestTypeProps =
-                    swaggerDecorator.RequestType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                var requestTypeProps = swaggerDecorator.RequestType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 var requestTypePropParamDefinitions = new List<OpenApiParameter>();
                 foreach(var requestTypeProp in requestTypeProps)
                 {
@@ -56,7 +55,6 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     {
                         var exampleValue = swaggerExample?.Example ?? GetJsonSchemaTypeString(requestTypeProp);
                         bodyExampleObject = bodyExampleObject.AddProperty(requestTypeProp.Name, exampleValue);
-                        propsLeftForBody += 1;
                         continue;
                     }
                     
@@ -107,7 +105,7 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     { 
                         new()
                         { 
-                            Name = swaggerDecorator.EndpointGroupName // confusingly, this seems to be what groups operations together into a path.
+                            Name = swaggerDecorator.EndpointGroupName // this groups operations together into a path.
                         } 
                     },                    
                     Description = endpointSwaggerDescription?.Description,
@@ -129,7 +127,8 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     }
                 };
 
-                if (propsLeftForBody > 0)
+                // Add a body if there are any props left (not already rendered as route, query or header)
+                if (bodyExampleObject.EnumerateObject().Any())
                     operation.RequestBody = new OpenApiRequestBody
                     {
                         Content = new Dictionary<string, OpenApiMediaType>
@@ -146,18 +145,13 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                         }
                     };
 
+                // Add the route, query and header parameters to the operation
                 foreach (var additionalParameter in requestTypePropParamDefinitions)
-                {
                     operation.Parameters.Add(additionalParameter);
-                }
                 
                 if (swaggerDecorator.AdditionalParameterDefinitions != null)
-                {                
                     foreach (var additionalParameter in swaggerDecorator.AdditionalParameterDefinitions)
-                    {
                         operation.Parameters.Add(additionalParameter);
-                    }
-                }
 
                 pathItem.Operations.Add(swaggerDecorator.OperationType, operation);
             }
@@ -181,9 +175,9 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
         {
             if (isHeader)
                 return ParameterLocation.Header;
-            else if (isRoute)
+            if (isRoute)
                 return ParameterLocation.Path;
-            
+
             return ParameterLocation.Query;
         }
     }

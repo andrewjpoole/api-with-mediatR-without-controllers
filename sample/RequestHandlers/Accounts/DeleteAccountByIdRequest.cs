@@ -26,7 +26,8 @@ namespace mediatr_test.RequestHandlers.Accounts
             _accountRepository.Delete(request.Id);
             return Task.FromResult(new AccountDeletedResponse
             {
-                Id = request.Id
+                Id = request.Id,
+                StatusCode = 204
             });
         }
     }
