@@ -10,11 +10,15 @@ I wondered if Endpoint Routing + some reflection + MediatR could provide a more 
 ## What is it
 
 A small library which allows Endpoints to be easily registered wired up to a MediatR IRequestHandler.
+
 The RequestHandlers should not have an knowledge of being behind aspnetcore, but instead focus on their business purpose.
+
 When a request is received, public properties from the TRequest type are looked up and satisfied from first the request body, then the route/path variables, 
 then variables from the query string and finally from the request headers collection, if a property is still not found AND not decorated with the Optional attribute, 
 then the request will be returned as a bad request.
+
 The TResponse returned from the RequestHandler is serialied into the response body.
+
 If the TResponse has a public int property named ResponseCode, then it will be used as the response HttpStatusCode.
 
 ## How to use it
