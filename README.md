@@ -9,17 +9,29 @@ I wondered if Endpoint Routing + some reflection + MediatR could provide a more 
 
 ## What is it
 
-A small library which allows Endpoints to be easily registered wired up to a MediatR IRequestHandler.
+A small library which allows Endpoints to be easily registered and wired up to MediatR IRequestHandlers.
 
-The RequestHandlers should not have an knowledge of being behind aspnetcore, but instead focus on their business purpose.
+The RequestHandlers need/should not have an knowledge of being behind aspnetcore, but instead focus on their business purpose.
 
 When a request is received, public properties from the TRequest type are looked up and satisfied from first the request body, then the route/path variables, 
 then variables from the query string and finally from the request headers collection, if a property is still not found AND not decorated with the Optional attribute, 
-then the request will be returned as a bad request.
+then the request will be returned with a 400BadRequest status code.
 
-The TResponse returned from the RequestHandler is serialied into the response body.
+The TResponse returned from the RequestHandler is serialised into the response body.
 
-If the TResponse has a public int property named ResponseCode, then it will be used as the response HttpStatusCode.
+If the TResponse has a public int property named ResponseCode, then it will be used as the response HttpStatusCode, 
+otherwise success is assumed and a 200Ok status code will returned.
+
+If a BadRequestException is thrown, then a 400BadRequest status code will be returned.
+
+If a NotFoundException is thrown, then a 404NotFound status code will be returned.
+The exception's ResponseBody property will be written to the response body.
+
+If a CustomHttpResponseException is thrown, then the status code contained in the exception will be returned. 
+The exception's TriggerErrorProcessor property determines if the ErrorProcessor will be called and 
+the exception's ResponseBody property will be written to the response body.
+
+If any other Exception is thrown, then a 500InternalServerError status code will be returned.
 
 ## How to use it
 
@@ -36,8 +48,6 @@ endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everythin
     .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}") // route parameter name must match property on TRequest, including case!! otherwise swagger breaks
     .WithPost<CreateAccountRequest, AccountDetails>("/")
 ```
-
-## Exception handling and response codes
 
 ## Cross cutting concerns (such as request logging stats collection)
 

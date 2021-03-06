@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
 
 namespace AJP.MediatrEndpoints
@@ -22,15 +23,15 @@ namespace AJP.MediatrEndpoints
                 var logger = context.RequestServices.GetService<ILogger<TRequest>>();
                 var requestProcessors = context.RequestServices.GetService<IMediatrEndpointsProcessors>();
                 var mediator = context.RequestServices.GetService<IMediator>();
-
+                var stopwatch = new Stopwatch();
+                
                 if (mediator is null)
                     throw new ApplicationException("Could not resolve IMediator from DI container, ensure services.AddMediatR(typeof(Startup)); or similar is configured in Startup->ConfigureServices().");
                 
                 try
                 {
                     requestProcessors?.PreProcess(context, logger);
-
-                    var stopwatch = new Stopwatch();
+                    
                     stopwatch.Start();
                     
                     // Start by deserialising the body
@@ -99,20 +100,54 @@ namespace AJP.MediatrEndpoints
                 }
                 catch (JsonException ex)
                 {
+                    if(stopwatch.IsRunning)
+                            stopwatch.Stop();
+                    
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     requestProcessors?.ErrorProcess(ex, context, logger);
                     await context.Response.WriteAsync("Bad request, body is not valid json");
                 }
                 catch (BadHttpRequestException ex)
                 {
+                    if(stopwatch.IsRunning)
+                        stopwatch.Stop();
+
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     requestProcessors?.ErrorProcess(ex, context, logger);
                     await context.Response.WriteAsync(ex.Message);
                 }
+                catch (NotFoundHttpException ex)
+                {
+                    if(stopwatch.IsRunning)
+                        stopwatch.Stop();
+                    
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    requestProcessors?.ErrorProcess(ex, context, logger);
+                    await context.Response.WriteAsync(ex.ResponseBody);
+                }
+                catch (CustomHttpResponseException ex)
+                {
+                    if(stopwatch.IsRunning)
+                        stopwatch.Stop();
+
+                    context.Response.StatusCode = ex.ResponseStatusCode;
+                    
+                    if(ex.TriggerPostProcessor)
+                        requestProcessors?.PostProcess(context, stopwatch.Elapsed, logger);
+                    
+                    if(ex.TriggerErrorProcessor)
+                        requestProcessors?.ErrorProcess(ex, context, logger);
+                    
+                    await context.Response.WriteAsync(ex.ResponseBody);
+                }
                 catch (Exception ex)
                 {
+                    if(stopwatch.IsRunning)
+                        stopwatch.Stop();
+
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     requestProcessors?.ErrorProcess(ex, context, logger);
-                    // Will return a 500 internal server error
+                    await context.Response.WriteAsync("Something has gone wrong.");
                 }
             };
         }
