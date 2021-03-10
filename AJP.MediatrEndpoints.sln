@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints", "src\AJP.MediatrEndpoints.csproj", "{4CE118EC-B5C8-4665-BAED-2562D73160A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mediatr-test", "sample\mediatr-test.csproj", "{7F544F13-BB36-4C15-9AAB-603D9F20BD1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints.Sample", "sample\AJP.MediatrEndpoints.Sample.csproj", "{7F544F13-BB36-4C15-9AAB-603D9F20BD1D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints.UnitTests", "tests\AJP.MediatrEndpoints.UnitTests\AJP.MediatrEndpoints.UnitTests.csproj", "{6EF477D5-68D9-4425-8986-70DCC7BFFA53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints.Tests", "tests\AJP.MediatrEndpoints.Tests\AJP.MediatrEndpoints.Tests.csproj", "{6EF477D5-68D9-4425-8986-70DCC7BFFA53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

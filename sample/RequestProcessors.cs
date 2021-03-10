@@ -1,23 +1,19 @@
 using System;
-using AJP.MediatrEndpoints;
-using mediatr_test.StatisticsGatherer;
+using AJP.MediatrEndpoints.Sample.StatisticsGatherer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace mediatr_test
+namespace AJP.MediatrEndpoints.Sample
 {
     public class RequestProcessors : IMediatrEndpointsProcessors
     {
-        private readonly IStatisticsTaskQueue _statisticsTaskQueue;
-
         public Action<HttpContext, ILogger> PreProcess {get; set;}
         public Action<HttpContext, TimeSpan, ILogger> PostProcess {get; set;}
         public Action<Exception, HttpContext, ILogger> ErrorProcess {get; set;}
 
         public RequestProcessors(IStatisticsTaskQueue statisticsTaskQueue)
         {
-            _statisticsTaskQueue = statisticsTaskQueue;
-
             PreProcess = (context, logger) =>
             {
                 var correlationId = GetOrCreateCorrelationId(context);
@@ -25,11 +21,15 @@ namespace mediatr_test
                 logger.LogInformation($"PreProcess-> {context.Request.Method} {context.Request.Path} request received with queryString:{context.Request.QueryString} and CorrelationId:{correlationId}");
 
                 context.Response.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
+
+                var contextAccessor = context.RequestServices.GetService<IMediatrEndpointsContextAccessor>();
+                if (contextAccessor != null)
+                    contextAccessor.CurrentContext = context;
             };
 
             PostProcess = (context, elapsed, logger) =>
             {
-                _statisticsTaskQueue.QueueStatisticsWorkItem((DateTime.UtcNow, elapsed.Ticks));
+                statisticsTaskQueue.QueueStatisticsWorkItem((DateTime.UtcNow, elapsed.Ticks));
 
                 context.Response.Headers.Add(Constants.HeaderKeys_Node, Environment.MachineName);
 

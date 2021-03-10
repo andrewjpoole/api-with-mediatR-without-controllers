@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using mediatr_test.RequestHandlers.Accounts;
+using AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts;
 
-namespace mediatr_test.Services
+namespace AJP.MediatrEndpoints.Sample.Services
 {
     public interface IAccountRepository
     {

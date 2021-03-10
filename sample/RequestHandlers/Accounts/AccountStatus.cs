@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace mediatr_test.RequestHandlers.Accounts
+namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum AccountStatus

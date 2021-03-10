@@ -1,4 +1,4 @@
-namespace mediatr_test.RequestHandlers.Greeting
+namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Greeting
 {
     public class GreetingResponse
     {

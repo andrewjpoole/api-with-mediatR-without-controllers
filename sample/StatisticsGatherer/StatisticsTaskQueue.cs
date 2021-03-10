@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace mediatr_test.StatisticsGatherer
+namespace AJP.MediatrEndpoints.Sample.StatisticsGatherer
 {
     public class StatisticsTaskQueue : IStatisticsTaskQueue
     {

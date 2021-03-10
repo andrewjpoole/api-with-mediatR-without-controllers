@@ -54,11 +54,11 @@ endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everythin
 The library contains an interface named IMediatrEndpointsProcessors:
 ```c#
 public interface IMediatrEndpointsProcessors
-    {
-        Action<HttpContext, ILogger> PreProcess {get; set;}
-        Action<HttpContext, TimeSpan, ILogger> PostProcess {get; set;}
-        Action<Exception, HttpContext, ILogger> ErrorProcess {get; set;}
-    }
+{
+    Action<HttpContext, ILogger> PreProcess {get; set;}
+    Action<HttpContext, TimeSpan, ILogger> PostProcess {get; set;}
+    Action<Exception, HttpContext, ILogger> ErrorProcess {get; set;}
+}
 ```
 If an implementation if found in the DI container, its actions will be called at the appropriate times, 
 giving opportunity for request pre and post processing to take place with access to the HttpContext, 
@@ -73,6 +73,10 @@ E.g. in the sample I check for the presence of a CorrelationId header, create on
 * This will loop through the endpoints registered, pull out some metadata and add paths, operations and parameters accordingly.
 
 ## Testing
+
+The MediatR RequestHandlers can be easily tested by mocking dependencies, passing in a TRequest and Asserting on the returned TResponse.
+
+Component testing can be done by 
 
 ## Todo
 

@@ -1,4 +1,4 @@
-﻿namespace mediatr_test
+﻿namespace AJP.MediatrEndpoints.Sample
 {
     public static class Constants
     {

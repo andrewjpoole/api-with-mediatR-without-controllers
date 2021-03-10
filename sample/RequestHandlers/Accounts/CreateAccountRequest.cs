@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using AJP.MediatrEndpoints.Sample.Services;
 using MediatR;
-using mediatr_test.Services;
 
-namespace mediatr_test.RequestHandlers.Accounts
+namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
 {
     public class CreateAccountRequest : IRequest<AccountDetails>
     {

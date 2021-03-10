@@ -1,27 +1,24 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using MediatR;
-using mediatr_test.RequestHandlers;
-using AJP.MediatrEndpoints;
-using AJP.MediatrEndpoints.SwaggerSupport;
-using Microsoft.OpenApi.Models;
 using System;
-using mediatr_test.StatisticsGatherer;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.Json.Serialization;
 using AJP.MediatrEndpoints.EndpointRegistration;
-using mediatr_test.RequestHandlers.Accounts;
-using mediatr_test.RequestHandlers.Greeting;
-using mediatr_test.Services;
+using AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts;
+using AJP.MediatrEndpoints.Sample.RequestHandlers.Greeting;
+using AJP.MediatrEndpoints.Sample.Services;
+using AJP.MediatrEndpoints.Sample.StatisticsGatherer;
+using AJP.MediatrEndpoints.SwaggerSupport;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
-namespace mediatr_test
+namespace AJP.MediatrEndpoints.Sample
 {
     public class Startup
     {
@@ -58,6 +55,7 @@ namespace mediatr_test
             services.AddSingleton<IStatisticsQueuedHostedService, StatisticsQueuedHostedService>();
             services.AddHostedService(sp => (StatisticsQueuedHostedService)sp.GetService<IStatisticsQueuedHostedService>());
             services.AddSingleton<IAccountRepository, AccountRepository>();
+            services.AddScoped<IMediatrEndpointsContextAccessor, HttpContextAccessor>();
         }
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -95,7 +93,7 @@ namespace mediatr_test
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
                     .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}") // route parameter name must match property on TRequest, including case!! otherwise swagger breaks
                     .WithPost<CreateAccountRequest, AccountDetails>("/")
-                    .WithDelete<DeleteAccountByIdRequest, AccountDetails>("/{Id}")
+                    .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}")
                     .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
                
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting", "Greetings", "description of the greetings path")

@@ -1,10 +1,8 @@
-using mediatr_test.StatisticsGatherer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 
-namespace mediatr_test
+namespace AJP.MediatrEndpoints.Sample
 {
     public class Program
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace mediatr_test.RequestHandlers.Greeting
+namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Greeting
 {
     public class GreetingRequestHandler : IRequestHandler<GreetingRequest, GreetingResponse>
     {

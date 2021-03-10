@@ -23,7 +23,12 @@ namespace AJP.MediatrEndpoints
                 var logger = context.RequestServices.GetService<ILogger<TRequest>>();
                 var requestProcessors = context.RequestServices.GetService<IMediatrEndpointsProcessors>();
                 var mediator = context.RequestServices.GetService<IMediator>();
+                
                 var stopwatch = new Stopwatch();
+                var jsonSerialiserOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
                 
                 if (mediator is null)
                     throw new ApplicationException("Could not resolve IMediator from DI container, ensure services.AddMediatR(typeof(Startup)); or similar is configured in Startup->ConfigureServices().");
@@ -48,33 +53,38 @@ namespace AJP.MediatrEndpoints
                     var propsOnTRequest = typeof(TRequest).GetPublicInstanceProperties();
                     foreach (var propOnTRequest in propsOnTRequest)
                     {
+                        var propNameLowerCase = propOnTRequest.Name.ToLower();
+                        var propNameCamelCase = JsonNamingPolicy.CamelCase.ConvertName(propOnTRequest.Name);
+                        
                         // Check if we already have a property with a value from the body
-                        if (requestObject.TryGetProperty(propOnTRequest.Name, out _))
+                        if (requestObject.TryGetProperty(propOnTRequest.Name, out _) 
+                            || requestObject.TryGetProperty(propNameLowerCase, out _)
+                            || requestObject.TryGetProperty(propNameCamelCase, out _))
                         {
                             continue;
                         }
 
                         // Check if there is a matching value from the route
-                        if (context.Request.RouteValues.ContainsKey(propOnTRequest.Name))
+                        if (context.Request.RouteValues.Keys.Any(x => x.ToLower() == propNameLowerCase))
                         {
-                            requestObject = requestObject.AddProperty(propOnTRequest.Name,
-                                context.Request.RouteValues[propOnTRequest.Name]);
+                            requestObject = requestObject.AddProperty(propNameLowerCase,
+                                context.Request.RouteValues.First(x => x.Key.ToLower() == propNameLowerCase).Value);
                             continue;
                         }
                         
                         // Check the query string
-                        if (queryStringValues.ContainsKey(propOnTRequest.Name))
+                        if (queryStringValues.Keys.Any(x => x.ToLower() == propNameLowerCase))
                         {
-                            requestObject = requestObject.AddProperty(propOnTRequest.Name,
-                                queryStringValues[propOnTRequest.Name]);
+                            requestObject = requestObject.AddProperty(propNameLowerCase,
+                                queryStringValues.First(x => x.Key.ToLower() == propNameLowerCase).Value);
                             continue;
                         }
 
                         // Check if there is a matching value from the request headers
-                        if (context.Request.Headers.ContainsKey(propOnTRequest.Name))
+                        if (context.Request.Headers.Keys.Any(x => x.ToLower() == propNameLowerCase))
                         {
-                            requestObject = requestObject.AddProperty(propOnTRequest.Name,
-                                context.Request.Headers[propOnTRequest.Name].FirstOrDefault());
+                            requestObject = requestObject.AddProperty(propNameLowerCase,
+                                context.Request.Headers.First(x => x.Key.ToLower() == propNameLowerCase).Value.FirstOrDefault());
                             continue;
                         }
 
@@ -88,7 +98,7 @@ namespace AJP.MediatrEndpoints
                         throw new BadHttpRequestException($"Missing Property {propOnTRequest.Name}");
                     }
 
-                    var mediatrRequest = requestObject.ConvertToObject<TRequest>();
+                    var mediatrRequest = requestObject.ConvertToObject<TRequest>(jsonSerialiserOptions);
                     var mediatrResponse = (TResponse) await mediator.Send(mediatrRequest);
 
                     if (mediatrResponse.HasStatusCodeProperty(out var statusCode))
@@ -96,7 +106,7 @@ namespace AJP.MediatrEndpoints
                     
                     stopwatch.Stop();
                     requestProcessors?.PostProcess(context, stopwatch.Elapsed, logger);
-                    await context.Response.WriteAsJsonAsync(mediatrResponse);
+                    await context.Response.WriteAsJsonAsync(mediatrResponse, jsonSerialiserOptions);
                 }
                 catch (JsonException ex)
                 {

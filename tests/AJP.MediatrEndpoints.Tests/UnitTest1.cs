@@ -1,14 +1,13 @@
-using System;
 using Xunit;
 
-namespace AJP.MediatrEndpoints.UnitTests
+namespace AJP.MediatrEndpoints.Tests
 {
     public class UnitTest1
     {
         [Fact]
         public void Test1()
         {
-
+            
         }
     }
 }

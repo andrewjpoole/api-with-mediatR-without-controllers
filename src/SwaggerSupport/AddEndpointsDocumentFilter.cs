@@ -53,8 +53,9 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     // Render props to the body unless instructed to use route or header OR if GET
                     if (!isRouteParam && !isHeaderParam && swaggerDecorator.OperationType != OperationType.Get)
                     {
-                        var exampleValue = swaggerExample?.Example ?? GetJsonSchemaTypeString(requestTypeProp);
-                        bodyExampleObject = bodyExampleObject.AddProperty(requestTypeProp.Name, exampleValue);
+                        var exampleValue = swaggerExample?.Example ?? GetJsonExampleValue(requestTypeProp);
+                        var propName = JsonNamingPolicy.CamelCase.ConvertName(requestTypeProp.Name);
+                        bodyExampleObject = bodyExampleObject.AddProperty(propName, exampleValue);
                         continue;
                     }
                     
@@ -171,6 +172,20 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
             return "object";
         }
 
+        private object GetJsonExampleValue(PropertyInfo propertyInfo)
+        {
+            var type = propertyInfo.PropertyType;
+            if (new List<Type> {typeof(string), typeof(DateTime)}.Contains(type))
+                return "string";
+            if (new List<Type> {typeof(int), typeof(float), typeof(double), typeof(decimal)}.Contains(type))
+                return 123;
+            if (type == typeof(bool))
+                return true;
+            if (typeof(IEnumerable).IsAssignableFrom(type))
+                return "[]";
+            return "{}";
+        }
+        
         private ParameterLocation GetParameterLocation(bool isQuery, bool isRoute, bool isHeader)
         {
             if (isHeader)

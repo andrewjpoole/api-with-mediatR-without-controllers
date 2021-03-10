@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace mediatr_test.RequestHandlers.Greeting
+namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Greeting
 {
     public class GreetingRequest : IRequest<GreetingResponse>
     {

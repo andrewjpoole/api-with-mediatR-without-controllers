@@ -1,4 +1,4 @@
-﻿namespace mediatr_test.RequestHandlers.Accounts
+﻿namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
 {
     public class AccountDetails
     {

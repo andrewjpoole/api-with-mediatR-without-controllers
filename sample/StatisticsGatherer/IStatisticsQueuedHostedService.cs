@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace mediatr_test.StatisticsGatherer
+namespace AJP.MediatrEndpoints.Sample.StatisticsGatherer
 {
     public interface IStatisticsQueuedHostedService 
     {

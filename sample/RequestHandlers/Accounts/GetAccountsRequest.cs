@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using AJP.MediatrEndpoints.PropertyAttributes;
+using AJP.MediatrEndpoints.Sample.Services;
 using MediatR;
-using mediatr_test.Services;
 
-namespace mediatr_test.RequestHandlers.Accounts
+namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
 {
     [SwaggerDescription("Method which gets account details")]
     public class GetAccountsRequest : IRequest<IEnumerable<AccountDetails>>
