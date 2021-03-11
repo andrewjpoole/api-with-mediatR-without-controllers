@@ -3,9 +3,9 @@
     public class AccountDetails
     {
         public string Id { get; set; }
-        public string SortCode { get; set; }
-        public string AccountNumber { get; set; }
-        public decimal Balance { get; set; }
+        public string SortCode { get; init; }
+        public string AccountNumber { get; init; }
+        public decimal Balance { get; init; }
         public AccountStatus Status { get; set; }
     }
 }

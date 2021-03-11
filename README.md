@@ -80,7 +80,6 @@ Component testing can be done by
 
 ## Todo
 
-* access to CorrelationId and HttpContext via DI if needed?
-* add route param name checker for swagger
+* finish tests
 * outbound status code + headers, currently get 200 even if theres an error in the repository etc, possibly look at using mediatr behaviour pipeline
 * hook up statsGatherer to dotnet perf counters? 

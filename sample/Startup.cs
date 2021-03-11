@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using AJP.MediatrEndpoints.EndpointRegistration;
 using AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts;
 using AJP.MediatrEndpoints.Sample.RequestHandlers.Greeting;
@@ -55,7 +57,7 @@ namespace AJP.MediatrEndpoints.Sample
             services.AddSingleton<IStatisticsQueuedHostedService, StatisticsQueuedHostedService>();
             services.AddHostedService(sp => (StatisticsQueuedHostedService)sp.GetService<IStatisticsQueuedHostedService>());
             services.AddSingleton<IAccountRepository, AccountRepository>();
-            services.AddScoped<IMediatrEndpointsContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IEndpointContextAccessor, EndpointContextAccessor>();
         }
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -89,6 +91,17 @@ namespace AJP.MediatrEndpoints.Sample
                     await context.Response.WriteAsync("Hello World!");
                 });
 
+                // endpoints.MapGet("/api/v1/greeting", async context =>
+                // {
+                //     var mediatorRequest = await context.Request.ReadFromJsonAsync<GreetingRequest>();
+                //     var mediator = context.RequestServices.GetService<IMediator>();
+                //     var mediatorResponse = await mediator.Send(mediatorRequest);
+                //     await context.Response.WriteAsJsonAsync(mediatorResponse);
+                // });
+                
+                endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting")
+                    .WithPost<GreetingRequest, GreetingResponse>("/");
+                
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
                     .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}") // route parameter name must match property on TRequest, including case!! otherwise swagger breaks
@@ -96,9 +109,6 @@ namespace AJP.MediatrEndpoints.Sample
                     .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}")
                     .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
                
-                endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting", "Greetings", "description of the greetings path")
-                    .WithPost<GreetingRequest, GreetingResponse>("/");
-
                 endpoints.MapGet("/Stats", async context =>
                 {
                     var statsGatherer = context.RequestServices.GetService<IStatisticsQueuedHostedService>();

@@ -22,7 +22,7 @@ namespace AJP.MediatrEndpoints.Sample
 
                 context.Response.Headers.Add(Constants.HeaderKeys_CorrelationId, correlationId);
 
-                var contextAccessor = context.RequestServices.GetService<IMediatrEndpointsContextAccessor>();
+                var contextAccessor = context.RequestServices.GetService<IEndpointContextAccessor>();
                 if (contextAccessor != null)
                     contextAccessor.CurrentContext = context;
             };

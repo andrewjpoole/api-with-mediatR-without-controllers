@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace AJP.MediatrEndpoints
+namespace AJP.MediatrEndpoints.Sample
 {
-    public interface IMediatrEndpointsContextAccessor
+    public interface IEndpointContextAccessor
     {
         HttpContext CurrentContext { get; set; }
     }
