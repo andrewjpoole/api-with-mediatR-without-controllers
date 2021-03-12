@@ -14,11 +14,9 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         public string Id { get; set; }
     }
     
+    [StatusCode204NoContent()]
     public class AccountDeletedResponse
     {
-        public string Id { get; init; }
-
-        public int StatusCode { get; init; }
     }
     
     public class DeleteAccountByIdRequestHandler : IRequestHandler<DeleteAccountByIdRequest, AccountDeletedResponse>
@@ -45,11 +43,7 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
             var correlationId = _endpointContextAccessor.CurrentContext.Request.Headers["CorrelationId"];
             _logger.LogInformation($"Deleted account {request.Id} from request with CorrelationId: {correlationId}");
             
-            return Task.FromResult(new AccountDeletedResponse
-            {
-                Id = request.Id,
-                StatusCode = 204
-            });
+            return Task.FromResult(new AccountDeletedResponse());
         }
     }
 }

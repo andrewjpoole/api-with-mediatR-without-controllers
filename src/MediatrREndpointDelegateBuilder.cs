@@ -10,11 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
-using MediatR.Pipeline;
 
 namespace AJP.MediatrEndpoints
 {
@@ -103,12 +100,20 @@ namespace AJP.MediatrEndpoints
 
                     var mediatrRequest = requestObject.ConvertToObject<TRequest>(jsonSerialiserOptions);
                     var mediatrResponse = (TResponse) await mediator.Send(mediatrRequest);
+                    
+                    var tResponseHasStatusCode = (StatusCodeAttribute) (typeof(TResponse)).GetCustomAttributes(typeof(StatusCodeAttribute)).FirstOrDefault();
+                    if (tResponseHasStatusCode != null)
+                        context.Response.StatusCode = tResponseHasStatusCode.StatusCode;
 
                     if (mediatrResponse.HasStatusCodeProperty(out var statusCode))
                         context.Response.StatusCode = statusCode;
                     
                     stopwatch.Stop();
                     requestProcessors?.PostProcess(context, stopwatch.Elapsed, logger);
+
+                    if (context.Response.StatusCode == StatusCodes.Status204NoContent)
+                        return; // dont write mediatrResponse if statusCode: no content
+                    
                     await context.Response.WriteAsJsonAsync(mediatrResponse, jsonSerialiserOptions);
                 }
                 catch (JsonException ex)
@@ -196,26 +201,6 @@ namespace AJP.MediatrEndpoints
 
             statusCode = (int)statusCodeProp.GetValue(response);
             return true;
-        }
-    }
-    
-    public class RequestGenericExceptionHandler<TRequest, TResponse, TException> : IRequestExceptionHandler<TRequest, TResponse, TException>
-        where TException : Exception {
-        private readonly ILogger<RequestGenericExceptionHandler<TRequest, TResponse, TException>> _logger;
-
-        public RequestGenericExceptionHandler(ILogger<RequestGenericExceptionHandler<TRequest, TResponse, TException>> logger)
-        {
-            _logger = logger;
-        }
-        
-        public async Task Handle(TRequest request,
-            TException exception,
-            RequestExceptionHandlerState<TResponse> state,
-            CancellationToken cancellationToken)
-        {
-            var name = typeof(TRequest).Name;
-            _logger.LogError("MyPortal Request Exception {@Request}",
-                name, exception.Message, request);
         }
     }
 }

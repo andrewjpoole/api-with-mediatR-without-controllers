@@ -64,11 +64,6 @@ namespace AJP.MediatrEndpoints.Sample
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
@@ -107,7 +102,7 @@ namespace AJP.MediatrEndpoints.Sample
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
                     .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}")
-                    .WithPost<CreateAccountRequest, AccountDetails>("/")
+                    .WithPost<CreateAccountRequest, CreateAccountResponse>("/")
                     .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}")
                     .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
                

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using AJP.MediatrEndpoints.PropertyAttributes;
+using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Any;
 
 namespace AJP.MediatrEndpoints.SwaggerSupport
@@ -32,6 +33,14 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 
                 //var requestSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.RequestType, context.SchemaRepository);
                 var responseSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.ResponseType, context.SchemaRepository);
+                var responseTypeHasStatusCode = (StatusCodeAttribute) swaggerDecorator.ResponseType.GetCustomAttributes(typeof(StatusCodeAttribute)).FirstOrDefault();
+                var responseStatusCode = responseTypeHasStatusCode != null
+                    ? responseTypeHasStatusCode.StatusCode.ToString()
+                    : "200";
+                var responseStatusCodeName = responseTypeHasStatusCode != null
+                    ? responseTypeHasStatusCode.StatusCodeName.ToString()
+                    : "Ok";
+                
                 var endpointSwaggerDescription =
                     (SwaggerDescriptionAttribute)swaggerDecorator.RequestType.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
 
@@ -113,9 +122,9 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     Parameters = new List<OpenApiParameter>(),
                     Responses = new OpenApiResponses 
                     {
-                        ["200"] = new()
+                        [responseStatusCode] = new()
                         {
-                            Description = "OK",
+                            Description = responseStatusCodeName,
                             Content = new Dictionary<string, OpenApiMediaType>
                             {
                                 {"default", new OpenApiMediaType
