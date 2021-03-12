@@ -10,8 +10,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
+using MediatR.Pipeline;
 
 namespace AJP.MediatrEndpoints
 {
@@ -67,7 +70,7 @@ namespace AJP.MediatrEndpoints
                         // Check if there is a matching value from the route
                         if (context.Request.RouteValues.Keys.Any(x => x.ToLower() == propNameLowerCase))
                         {
-                            requestObject = requestObject.AddProperty(propNameLowerCase,
+                            requestObject = requestObject.AddProperty(propNameCamelCase,
                                 context.Request.RouteValues.First(x => x.Key.ToLower() == propNameLowerCase).Value);
                             continue;
                         }
@@ -75,7 +78,7 @@ namespace AJP.MediatrEndpoints
                         // Check the query string
                         if (queryStringValues.Keys.Any(x => x.ToLower() == propNameLowerCase))
                         {
-                            requestObject = requestObject.AddProperty(propNameLowerCase,
+                            requestObject = requestObject.AddProperty(propNameCamelCase,
                                 queryStringValues.First(x => x.Key.ToLower() == propNameLowerCase).Value);
                             continue;
                         }
@@ -83,7 +86,7 @@ namespace AJP.MediatrEndpoints
                         // Check if there is a matching value from the request headers
                         if (context.Request.Headers.Keys.Any(x => x.ToLower() == propNameLowerCase))
                         {
-                            requestObject = requestObject.AddProperty(propNameLowerCase,
+                            requestObject = requestObject.AddProperty(propNameCamelCase,
                                 context.Request.Headers.First(x => x.Key.ToLower() == propNameLowerCase).Value.FirstOrDefault());
                             continue;
                         }
@@ -193,6 +196,26 @@ namespace AJP.MediatrEndpoints
 
             statusCode = (int)statusCodeProp.GetValue(response);
             return true;
+        }
+    }
+    
+    public class RequestGenericExceptionHandler<TRequest, TResponse, TException> : IRequestExceptionHandler<TRequest, TResponse, TException>
+        where TException : Exception {
+        private readonly ILogger<RequestGenericExceptionHandler<TRequest, TResponse, TException>> _logger;
+
+        public RequestGenericExceptionHandler(ILogger<RequestGenericExceptionHandler<TRequest, TResponse, TException>> logger)
+        {
+            _logger = logger;
+        }
+        
+        public async Task Handle(TRequest request,
+            TException exception,
+            RequestExceptionHandlerState<TResponse> state,
+            CancellationToken cancellationToken)
+        {
+            var name = typeof(TRequest).Name;
+            _logger.LogError("MyPortal Request Exception {@Request}",
+                name, exception.Message, request);
         }
     }
 }

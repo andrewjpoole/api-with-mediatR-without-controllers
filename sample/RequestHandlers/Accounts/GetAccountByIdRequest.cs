@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
 using MediatR;
@@ -23,7 +24,12 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         
         public Task<AccountDetails> Handle(GetAccountByIdRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_accountRepository.GetById(request.Id));
+            var account = _accountRepository.GetById(request.Id);
+
+            if (account == null)
+                throw new NotFoundHttpException($"account with id:{request.Id} not found", "resource not found");
+            
+            return Task.FromResult(account);
         }
     }
 }

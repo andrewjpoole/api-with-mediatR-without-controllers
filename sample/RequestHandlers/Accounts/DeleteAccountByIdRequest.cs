@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
 using MediatR;
@@ -35,8 +36,12 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         
         public Task<AccountDeletedResponse> Handle(DeleteAccountByIdRequest request, CancellationToken cancellationToken)
         {
-            _accountRepository.Delete(request.Id);
-            
+            var deletedId = _accountRepository.Delete(request.Id);
+
+            if (string.IsNullOrEmpty(deletedId))
+                throw new NotFoundHttpException($"account with id:{request.Id} not found",
+                    "resource not found");
+                    
             var correlationId = _endpointContextAccessor.CurrentContext.Request.Headers["CorrelationId"];
             _logger.LogInformation($"Deleted account {request.Id} from request with CorrelationId: {correlationId}");
             

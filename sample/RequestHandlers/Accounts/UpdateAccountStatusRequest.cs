@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
 using MediatR;
@@ -24,10 +25,15 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         
         public Task<AccountDetails> Handle(UpdateAccountStatusRequest request, CancellationToken cancellationToken)
         {
+            var account = _accountRepository.GetById(request.Id);
+
+            if (account == null)
+                throw new NotFoundHttpException($"account with id:{request.Id} not found", "resource not found");
+            
             return request.Blocked switch
             {
-                true => Task.FromResult(_accountRepository.Block(request.Id)),
-                false => Task.FromResult(_accountRepository.UnBlock(request.Id))
+                true => Task.FromResult(_accountRepository.Block(account.Id)),
+                false => Task.FromResult(_accountRepository.UnBlock(account.Id))
             };
         }
     }

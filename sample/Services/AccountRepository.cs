@@ -96,7 +96,7 @@ namespace AJP.MediatrEndpoints.Sample.Services
             }.ToDictionary(x => x.Id);
         }
         
-        public AccountDetails GetById(string id) => _accounts[id];
+        public AccountDetails GetById(string id) => _accounts.ContainsKey(id) ? _accounts[id] : null;
 
         public IEnumerable<AccountDetails> GetAll(string sortcode = "", Func<decimal, bool> balanceCriteria = null, AccountStatus statusFilter = AccountStatus.Any)
         {

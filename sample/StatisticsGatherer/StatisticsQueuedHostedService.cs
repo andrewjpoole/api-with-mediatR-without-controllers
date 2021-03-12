@@ -80,7 +80,7 @@ namespace AJP.MediatrEndpoints.Sample.StatisticsGatherer
 
                     LastResponseSent = durationRecording.ResponseSent;
 
-                    // ToDo add short term and long term windows and calculate trends?
+                    // ToDo add short term and long term windows and calculate trends/rate of change etc?
 
                 }
                 catch (Exception ex)
@@ -91,10 +91,10 @@ namespace AJP.MediatrEndpoints.Sample.StatisticsGatherer
             }
         }
 
-        public override async Task StopAsync(CancellationToken stoppingToken)
+        public override async Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("StatisticsQueuedHostedService is stopping.");
-            await base.StopAsync(stoppingToken);
+            await base.StopAsync(cancellationToken);
         }
     }
 }

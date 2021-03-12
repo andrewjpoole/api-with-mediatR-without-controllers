@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AJP.MediatrEndpoints.PropertyAttributes;
@@ -34,7 +35,7 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         
         public Task<IEnumerable<AccountDetails>> Handle(GetAccountsRequest request, CancellationToken cancellationToken)
         {
-            return request.BalanceFilter switch
+            return WebUtility.UrlDecode(request.BalanceFilter) switch
             {
                 string s when s.StartsWith("<") => Task.FromResult(
                     _accountRepository.GetAll(request.SortCodeMatch,

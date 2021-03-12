@@ -11,6 +11,7 @@ using AJP.MediatrEndpoints.Sample.Services;
 using AJP.MediatrEndpoints.Sample.StatisticsGatherer;
 using AJP.MediatrEndpoints.SwaggerSupport;
 using MediatR;
+using MediatR.Pipeline;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -58,6 +59,7 @@ namespace AJP.MediatrEndpoints.Sample
             services.AddHostedService(sp => (StatisticsQueuedHostedService)sp.GetService<IStatisticsQueuedHostedService>());
             services.AddSingleton<IAccountRepository, AccountRepository>();
             services.AddScoped<IEndpointContextAccessor, EndpointContextAccessor>();
+            services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(RequestGenericExceptionHandler<,,>));
         }
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -104,7 +106,7 @@ namespace AJP.MediatrEndpoints.Sample
                 
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
-                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}") // route parameter name must match property on TRequest, including case!! otherwise swagger breaks
+                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}")
                     .WithPost<CreateAccountRequest, AccountDetails>("/")
                     .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}")
                     .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
@@ -113,16 +115,6 @@ namespace AJP.MediatrEndpoints.Sample
                 {
                     var statsGatherer = context.RequestServices.GetService<IStatisticsQueuedHostedService>();
                     await context.Response.WriteAsJsonAsync(statsGatherer?.GetStats());
-                });
-
-                endpoints.MapGet("/Endpoints", async context =>
-                {
-                    var sb = new StringBuilder();
-                    var endpointDataSource = context.RequestServices.GetService<EndpointDataSource>();
-                    foreach (var endpoint in endpointDataSource.Endpoints)
-                        sb.AppendLine($"{endpoint.DisplayName} {endpoint.RequestDelegate}");
-                    
-                    await context.Response.WriteAsync(sb.ToString());
                 });
             });
         }
