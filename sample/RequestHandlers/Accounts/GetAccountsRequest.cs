@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
+using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
 using MediatR;
 
 namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
@@ -21,7 +22,8 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         [SwaggerDescription("Use this optional parameter to filter results by balance e.g. <-1000 will return accounts with a balance of less than £-1000")]
         public string BalanceFilter { get; set; }
 
-        [OptionalProperty] public AccountStatus AccountStatusFilter { get; set; } = AccountStatus.Any;
+        [OptionalProperty] 
+        public AccountStatus AccountStatusFilter { get; set; } = AccountStatus.Any;
     }
 
     public class GetAccountsRequestHandler : IRequestHandler<GetAccountsRequest, IEnumerable<AccountDetails>>

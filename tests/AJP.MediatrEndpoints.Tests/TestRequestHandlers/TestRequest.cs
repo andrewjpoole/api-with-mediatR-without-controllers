@@ -1,4 +1,5 @@
 ﻿using AJP.MediatrEndpoints.PropertyAttributes;
+using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 

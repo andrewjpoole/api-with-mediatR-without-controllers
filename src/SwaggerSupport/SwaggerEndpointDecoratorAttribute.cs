@@ -14,5 +14,6 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
         public string EndpointGroupPath { get; init; }
         public string EndpointGroupDescription { get; init; }
         public List<OpenApiParameter> AdditionalParameterDefinitions { get; init; } = new List<OpenApiParameter>();
+        public int SuccessfulStatusCode { get; init; }
     }
 }

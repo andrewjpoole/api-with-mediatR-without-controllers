@@ -8,7 +8,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using AJP.MediatrEndpoints.PropertyAttributes;
-using Microsoft.AspNetCore.Http;
+using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.OpenApi.Any;
 
 namespace AJP.MediatrEndpoints.SwaggerSupport
@@ -33,13 +34,9 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 
                 //var requestSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.RequestType, context.SchemaRepository);
                 var responseSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.ResponseType, context.SchemaRepository);
-                var responseTypeHasStatusCode = (StatusCodeAttribute) swaggerDecorator.ResponseType.GetCustomAttributes(typeof(StatusCodeAttribute)).FirstOrDefault();
-                var responseStatusCode = responseTypeHasStatusCode != null
-                    ? responseTypeHasStatusCode.StatusCode.ToString()
-                    : "200";
-                var responseStatusCodeName = responseTypeHasStatusCode != null
-                    ? responseTypeHasStatusCode.StatusCodeName.ToString()
-                    : "Ok";
+
+                var responseStatusCode = swaggerDecorator.SuccessfulStatusCode;
+                var responseStatusCodeName = ReasonPhrases.GetReasonPhrase(responseStatusCode); 
                 
                 var endpointSwaggerDescription =
                     (SwaggerDescriptionAttribute)swaggerDecorator.RequestType.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
@@ -52,7 +49,6 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 var requestTypePropParamDefinitions = new List<OpenApiParameter>();
                 foreach(var requestTypeProp in requestTypeProps)
                 {
-                    var isQueryParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerQueryParameterAttribute)).Any();
                     var isRouteParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerRouteParameterAttribute)).Any();
                     var isHeaderParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerHeaderParameterAttribute)).Any();
                     var isOptionalParam = requestTypeProp.GetCustomAttributes(typeof(OptionalPropertyAttribute)).Any();
@@ -78,7 +74,7 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     
                     requestTypePropParamDefinitions.Add(new OpenApiParameter
                     {
-                        In = GetParameterLocation(isQueryParam, isRouteParam, isHeaderParam),
+                        In = GetParameterLocation(isRouteParam, isHeaderParam),
                         Name = requestTypeProp.Name,
                         Schema = enumSchema ?? new OpenApiSchema
                         {
@@ -122,7 +118,7 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     Parameters = new List<OpenApiParameter>(),
                     Responses = new OpenApiResponses 
                     {
-                        [responseStatusCode] = new()
+                        [responseStatusCode.ToString()] = new()
                         {
                             Description = responseStatusCodeName,
                             Content = new Dictionary<string, OpenApiMediaType>
@@ -195,14 +191,12 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
             return "{}";
         }
         
-        private ParameterLocation GetParameterLocation(bool isQuery, bool isRoute, bool isHeader)
+        private ParameterLocation GetParameterLocation(bool isRoute, bool isHeader)
         {
             if (isHeader)
                 return ParameterLocation.Header;
-            if (isRoute)
-                return ParameterLocation.Path;
-
-            return ParameterLocation.Query;
+            
+            return isRoute ? ParameterLocation.Path : ParameterLocation.Query;
         }
     }
 }

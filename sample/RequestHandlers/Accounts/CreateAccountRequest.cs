@@ -13,7 +13,6 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         public decimal Balance { get; set; }
     }
     
-    [StatusCode(201, "Created")]
     public class CreateAccountResponse : AccountDetails
     {
         public CreateAccountResponse(AccountDetails account)

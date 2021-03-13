@@ -50,16 +50,16 @@ namespace AJP.MediatrEndpoints.Sample
                 
                 c.DocumentFilter<AddEndpointsDocumentFilter>();
             });
+
+            services.AddMediatrEndpoints(typeof(Startup));
             
             services.AddLogging();
-            services.AddMediatR(typeof(Startup));
             services.AddSingleton<IMediatrEndpointsProcessors, RequestProcessors>();
             services.AddSingleton<IStatisticsTaskQueue, StatisticsTaskQueue>();
             services.AddSingleton<IStatisticsQueuedHostedService, StatisticsQueuedHostedService>();
             services.AddHostedService(sp => (StatisticsQueuedHostedService)sp.GetService<IStatisticsQueuedHostedService>());
             services.AddSingleton<IAccountRepository, AccountRepository>();
             services.AddScoped<IEndpointContextAccessor, EndpointContextAccessor>();
-            services.AddTransient(typeof(IRequestExceptionHandler<,,>), typeof(RequestGenericExceptionHandler<,,>));
         }
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -87,14 +87,6 @@ namespace AJP.MediatrEndpoints.Sample
                 {
                     await context.Response.WriteAsync("Hello World!");
                 });
-
-                // endpoints.MapGet("/api/v1/greeting", async context =>
-                // {
-                //     var mediatorRequest = await context.Request.ReadFromJsonAsync<GreetingRequest>();
-                //     var mediator = context.RequestServices.GetService<IMediator>();
-                //     var mediatorResponse = await mediator.Send(mediatorRequest);
-                //     await context.Response.WriteAsJsonAsync(mediatorResponse);
-                // });
                 
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting")
                     .WithPost<GreetingRequest, GreetingResponse>("/");
@@ -102,8 +94,8 @@ namespace AJP.MediatrEndpoints.Sample
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
                     .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}")
-                    .WithPost<CreateAccountRequest, CreateAccountResponse>("/")
-                    .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}")
+                    .WithPost<CreateAccountRequest, CreateAccountResponse>("/", StatusCodes.Status201Created)
+                    .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}", StatusCodes.Status204NoContent)
                     .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
                
                 endpoints.MapGet("/Stats", async context =>

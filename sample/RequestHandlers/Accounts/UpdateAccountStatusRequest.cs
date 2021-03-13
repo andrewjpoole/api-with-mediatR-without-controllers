@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
+using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
 using MediatR;
 
 namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts

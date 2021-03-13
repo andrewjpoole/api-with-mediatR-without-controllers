@@ -17,7 +17,7 @@ namespace AJP.MediatrEndpoints
 {
     public static class MediatrREndpointDelegateBuilder
     {
-        public static RequestDelegate Build<TRequest, TResponse>()
+        public static RequestDelegate Build<TRequest, TResponse>(int successfulStatusCode)
         {
             return async context => {
                 var logger = context.RequestServices.GetService<ILogger<TRequest>>();
@@ -101,10 +101,10 @@ namespace AJP.MediatrEndpoints
                     var mediatrRequest = requestObject.ConvertToObject<TRequest>(jsonSerialiserOptions);
                     var mediatrResponse = (TResponse) await mediator.Send(mediatrRequest);
                     
-                    var tResponseHasStatusCode = (StatusCodeAttribute) (typeof(TResponse)).GetCustomAttributes(typeof(StatusCodeAttribute)).FirstOrDefault();
-                    if (tResponseHasStatusCode != null)
-                        context.Response.StatusCode = tResponseHasStatusCode.StatusCode;
+                    // Assume success if we have got this far
+                    context.Response.StatusCode = successfulStatusCode;
 
+                    // but the status code may be overriden by use of a property on TResponse named StatusCode
                     if (mediatrResponse.HasStatusCodeProperty(out var statusCode))
                         context.Response.StatusCode = statusCode;
                     

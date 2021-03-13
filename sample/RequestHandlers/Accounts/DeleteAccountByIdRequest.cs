@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
+using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +15,6 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts
         public string Id { get; set; }
     }
     
-    [StatusCode204NoContent()]
     public class AccountDeletedResponse
     {
     }
