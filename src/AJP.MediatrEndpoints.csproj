@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>AJP.MediatrEndpoints</RootNamespace>
     <PackageId>AJP.MediatrEndpoints</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>Andrew Poole</Authors>
     <Company>AJP</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
