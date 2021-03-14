@@ -1,5 +1,9 @@
 # api-with-mediatR-without-controllers
 
+![Azure DevOps builds](https://img.shields.io/azure-devops/build/andrewjpoole/3f0dab76-e404-4cbe-9466-d31ec413c2a6/8)
+![Nuget](https://img.shields.io/nuget/v/AJP.MediatrEndpoints?label=nuget%20version)
+![Nuget](https://img.shields.io/nuget/dt/AJP.MediatrEndpoints?label=nuget%20downloads)
+
 ## Background
 
 There are some increasingly widely help opinions that controllers are somewhat old fashioned.
@@ -81,5 +85,4 @@ Component testing can be done by
 ## Todo
 
 * finish tests
-* outbound status code + headers, currently get 200 even if theres an error in the repository etc, possibly look at using mediatr behaviour pipeline
 * hook up statsGatherer to dotnet perf counters? 
