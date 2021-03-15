@@ -85,4 +85,6 @@ Component testing can be done by
 ## Todo
 
 * finish tests
+* split out the swagger support into a seperate nuget package
+* provide alternative way to define OpenApi metadata, preferably when defining the endpoints (without using attributes) in case a user wants to keep the Requests/Responses/Handlers completely clean
 * hook up statsGatherer to dotnet perf counters? 
