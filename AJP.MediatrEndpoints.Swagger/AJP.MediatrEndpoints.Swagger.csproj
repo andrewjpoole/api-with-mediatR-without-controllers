@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <PackageId>AJP.MediatrEndpoints.Swagger</PackageId>
+        <Version>1.0.0</Version>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>Andrew Poole</Authors>
+        <Description>Small library which adds Swagger OpenApi auto-documentation to AJP.MediatrEndpoints.</Description>
+        <Copyright>2021 andrew poole</Copyright>
+        <RepositoryUrl>https://github.com/andrewjpoole/api-with-mediatR-without-controllers</RepositoryUrl>
+        <PackageTags>mediatr, aspnetcore, endpoints, swagger, openapi, auto documentation</PackageTags>
+        <PackageReleaseNotes>
+            1.0.0) initial version
+        </PackageReleaseNotes>
+        <RepositoryType>github</RepositoryType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\src\AJP.MediatrEndpoints.csproj" />
+    </ItemGroup>
+
+</Project>

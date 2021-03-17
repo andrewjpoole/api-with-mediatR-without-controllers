@@ -1,26 +1,31 @@
 ﻿using System;
 using System.Collections;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using AJP.MediatrEndpoints.EndpointRegistration;
+using AJP.MediatrEndpoints.Helpers;
 using AJP.MediatrEndpoints.PropertyAttributes;
-using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
+using AJP.MediatrEndpoints.Swagger.Attributes;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace AJP.MediatrEndpoints.SwaggerSupport
+namespace AJP.MediatrEndpoints.Swagger
 {
     public class AddEndpointsDocumentFilter : IDocumentFilter
     {
         private readonly EndpointDataSource _endpointDataSource;
+        private readonly IRouteParameterHelper _routeParameterHelper;
 
-        public AddEndpointsDocumentFilter(EndpointDataSource endpointDataSource)
+        public AddEndpointsDocumentFilter(EndpointDataSource endpointDataSource, IRouteParameterHelper routeParameterHelper)
         {
-            _endpointDataSource = endpointDataSource;    
+            _endpointDataSource = endpointDataSource;
+            _routeParameterHelper = routeParameterHelper;
         }
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
@@ -28,35 +33,43 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
             swaggerDoc.Tags = new List<OpenApiTag>();
             foreach (var endpoint in _endpointDataSource.Endpoints)
             {
-                var swaggerDecorator = endpoint.Metadata.GetMetadata<SwaggerEndpointDecoratorAttribute>();
+                var swaggerDecorator = endpoint.Metadata.GetMetadata<EndpointMetadataDecoratorAttribute>();
                 if (swaggerDecorator == null)
                     continue;
+
+                var routeParamNames = _routeParameterHelper.GetRouteParamNamesFromPattern(swaggerDecorator.Pattern);
                 
                 //var requestSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.RequestType, context.SchemaRepository);
+                
+                // Add the response scheme
                 var responseSchema = context.SchemaGenerator.GenerateSchema(swaggerDecorator.ResponseType, context.SchemaRepository);
-
+                
                 var responseStatusCode = swaggerDecorator.SuccessfulStatusCode;
                 var responseStatusCodeName = ReasonPhrases.GetReasonPhrase(responseStatusCode); 
                 
                 var endpointSwaggerDescription =
                     (SwaggerDescriptionAttribute)swaggerDecorator.RequestType.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
-
+                
                 // Get an empty json element to add body parameters to
                 var bodyExampleObject = JsonDocument.Parse("{}").RootElement;
                 
-                // Get properties on requestType
+                // Loop through properties on requestType
                 var requestTypeProps = swaggerDecorator.RequestType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 var requestTypePropParamDefinitions = new List<OpenApiParameter>();
                 foreach(var requestTypeProp in requestTypeProps)
                 {
-                    var isRouteParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerRouteParameterAttribute)).Any();
-                    var isHeaderParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerHeaderParameterAttribute)).Any();
+                    //var isRouteParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerRouteParameterAttribute)).Any();
+                    //var isHeaderParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerHeaderParameterAttribute)).Any();
                     var isOptionalParam = requestTypeProp.GetCustomAttributes(typeof(OptionalPropertyAttribute)).Any();
                     var swaggerDescription = (SwaggerDescriptionAttribute)requestTypeProp.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
                     var swaggerExample = (SwaggerExampleValueAttribute)requestTypeProp.GetCustomAttributes(typeof(SwaggerExampleValueAttribute)).FirstOrDefault();
 
-                    // Render props to the body unless instructed to use route or header OR if GET
-                    if (!isRouteParam && !isHeaderParam && swaggerDecorator.OperationType != OperationType.Get)
+                    var location = GetParameterLocation(requestTypeProp, routeParamNames);
+                    
+                    // Render the property to the body unless instructed to use route/header/query
+                    // OR if operation is a GET (not allowed a body in most browsers)
+                    // Cookie is interpretted as Body
+                    if (location == ParameterLocation.Cookie && swaggerDecorator.OperationType != OperationType.Get)
                     {
                         var exampleValue = swaggerExample?.Example ?? GetJsonExampleValue(requestTypeProp);
                         var propName = JsonNamingPolicy.CamelCase.ConvertName(requestTypeProp.Name);
@@ -74,7 +87,7 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                     
                     requestTypePropParamDefinitions.Add(new OpenApiParameter
                     {
-                        In = GetParameterLocation(isRouteParam, isHeaderParam),
+                        In = location,
                         Name = requestTypeProp.Name,
                         Schema = enumSchema ?? new OpenApiSchema
                         {
@@ -114,7 +127,7 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                             Name = swaggerDecorator.EndpointGroupName // this groups operations together into a path.
                         } 
                     },                    
-                    Description = endpointSwaggerDescription?.Description,
+                    Description = endpointSwaggerDescription?.Description ?? swaggerDecorator.Description,
                     Parameters = new List<OpenApiParameter>(),
                     Responses = new OpenApiResponses 
                     {
@@ -155,8 +168,8 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 foreach (var additionalParameter in requestTypePropParamDefinitions)
                     operation.Parameters.Add(additionalParameter);
                 
-                if (swaggerDecorator.AdditionalParameterDefinitions != null)
-                    foreach (var additionalParameter in swaggerDecorator.AdditionalParameterDefinitions)
+                if (swaggerDecorator.OverrideParameterDefinitions != null)
+                    foreach (var additionalParameter in swaggerDecorator.OverrideParameterDefinitions)
                         operation.Parameters.Add(additionalParameter);
 
                 pathItem.Operations.Add(swaggerDecorator.OperationType, operation);
@@ -197,6 +210,29 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
                 return ParameterLocation.Header;
             
             return isRoute ? ParameterLocation.Path : ParameterLocation.Query;
+        }
+
+        private ParameterLocation GetParameterLocation(PropertyInfo prop, List<string> routeParamNames)
+        {
+            var isRouteParam = prop.GetCustomAttributes(typeof(SwaggerRouteParameterAttribute)).Any();
+            var isHeaderParam = prop.GetCustomAttributes(typeof(SwaggerHeaderParameterAttribute)).Any();
+            var isQueryParam = prop.GetCustomAttributes(typeof(SwaggerQueryParameterAttribute)).Any();
+
+            if (routeParamNames.Contains(prop.Name))
+            {
+                isRouteParam = true;
+            }
+
+            if (isHeaderParam)
+                return ParameterLocation.Header;
+
+            if (isRouteParam)
+                return ParameterLocation.Path;
+
+            if (isQueryParam)
+                return ParameterLocation.Query;
+            
+            return ParameterLocation.Cookie; // interpret Cookie as property should be left on the body
         }
     }
 }

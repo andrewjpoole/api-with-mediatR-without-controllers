@@ -1,9 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using AJP.MediatrEndpoints.Exceptions;
-using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
-using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
+using AJP.MediatrEndpoints.Swagger.Attributes;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

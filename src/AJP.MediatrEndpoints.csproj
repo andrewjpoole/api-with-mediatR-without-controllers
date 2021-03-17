@@ -4,9 +4,20 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>AJP.MediatrEndpoints</RootNamespace>
     <PackageId>AJP.MediatrEndpoints</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.2.0</Version>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Andrew Poole</Authors>
-    <Company>AJP</Company>
+    <Description>Small library which wires up aspnetcore endpoints to MediatR request handlers.</Description>
+    <Copyright>2021 andrew poole</Copyright>
+    <RepositoryUrl>https://github.com/andrewjpoole/api-with-mediatR-without-controllers</RepositoryUrl>
+    <PackageTags>mediatr, aspnetcore, endpoints, no controllers, without controllers</PackageTags>
+    <PackageReleaseNotes>
+      1.2.0) swagger support moved to separate package
+      1.0.1) some internal refactoring
+      1.0.0) initial version
+    </PackageReleaseNotes>
+    <RepositoryType>github</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 

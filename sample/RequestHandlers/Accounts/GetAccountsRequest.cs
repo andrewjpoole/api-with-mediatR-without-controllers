@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AJP.MediatrEndpoints.PropertyAttributes;
 using AJP.MediatrEndpoints.Sample.Services;
-using AJP.MediatrEndpoints.SwaggerSupport.Attributes;
+using AJP.MediatrEndpoints.Swagger.Attributes;
 using MediatR;
 
 namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts

@@ -1,10 +1,10 @@
-﻿using Microsoft.OpenApi.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.OpenApi.Models;
 
-namespace AJP.MediatrEndpoints.SwaggerSupport
+namespace AJP.MediatrEndpoints.EndpointRegistration
 {
-    public class SwaggerEndpointDecoratorAttribute : Attribute
+    public class EndpointMetadataDecoratorAttribute : Attribute
     {
         public string Pattern { get; init; }
         public Type RequestType { get; init; }
@@ -13,7 +13,8 @@ namespace AJP.MediatrEndpoints.SwaggerSupport
         public string EndpointGroupName { get; init; }
         public string EndpointGroupPath { get; init; }
         public string EndpointGroupDescription { get; init; }
-        public List<OpenApiParameter> AdditionalParameterDefinitions { get; init; } = new List<OpenApiParameter>();
+        public List<OpenApiParameter> OverrideParameterDefinitions { get; init; } = new List<OpenApiParameter>();
         public int SuccessfulStatusCode { get; init; }
+        public string Description { get; set; }
     }
 }

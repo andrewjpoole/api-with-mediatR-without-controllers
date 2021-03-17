@@ -1,24 +1,17 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Text.Json;
 using AJP.MediatrEndpoints.EndpointRegistration;
 using AJP.MediatrEndpoints.Sample.RequestHandlers.Accounts;
 using AJP.MediatrEndpoints.Sample.RequestHandlers.Greeting;
 using AJP.MediatrEndpoints.Sample.Services;
 using AJP.MediatrEndpoints.Sample.StatisticsGatherer;
-using AJP.MediatrEndpoints.SwaggerSupport;
-using MediatR;
-using MediatR.Pipeline;
+using AJP.MediatrEndpoints.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
 namespace AJP.MediatrEndpoints.Sample
@@ -92,10 +85,10 @@ namespace AJP.MediatrEndpoints.Sample
                     .WithPost<GreetingRequest, GreetingResponse>("/");
                 
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
-                    .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/")
-                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}")
-                    .WithPost<CreateAccountRequest, CreateAccountResponse>("/", StatusCodes.Status201Created)
-                    .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}", StatusCodes.Status204NoContent)
+                    .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/", "Gets Accounts with various filter options")
+                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}", "Get a single account by Id")
+                    .WithPost<CreateAccountRequest, CreateAccountResponse>("/", "Create a new account", StatusCodes.Status201Created)
+                    .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}", "Delete an account by Id", StatusCodes.Status204NoContent)
                     .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
                
                 endpoints.MapGet("/Stats", async context =>

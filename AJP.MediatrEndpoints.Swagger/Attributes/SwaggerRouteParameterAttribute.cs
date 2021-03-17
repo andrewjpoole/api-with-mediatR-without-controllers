@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AJP.MediatrEndpoints.SwaggerSupport.Attributes
+namespace AJP.MediatrEndpoints.Swagger.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class SwaggerRouteParameterAttribute: Attribute

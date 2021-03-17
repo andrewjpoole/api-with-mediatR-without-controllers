@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AJP.MediatrEndpoints.Swagger\AJP.MediatrEndpoints.Swagger.csproj" />
     <ProjectReference Include="..\src\AJP.MediatrEndpoints.csproj" />
   </ItemGroup>
 

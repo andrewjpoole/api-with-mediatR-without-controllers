@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AJP.MediatrEndpoints.SwaggerSupport.Attributes
+namespace AJP.MediatrEndpoints.Swagger.Attributes
 {
     public class SwaggerDescriptionAttribute: Attribute
     {
