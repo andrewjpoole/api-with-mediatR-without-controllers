@@ -13,7 +13,7 @@ namespace AJP.MediatrEndpoints.EndpointRegistration
         public string EndpointGroupName { get; init; }
         public string EndpointGroupPath { get; init; }
         public string EndpointGroupDescription { get; init; }
-        public List<OpenApiParameter> OverrideParameterDefinitions { get; init; } = new List<OpenApiParameter>();
+        public Dictionary<string, OpenApiParameter> OverrideParameterDefinitions { get; init; } = new();
         public int SuccessfulStatusCode { get; init; }
         public string Description { get; set; }
     }

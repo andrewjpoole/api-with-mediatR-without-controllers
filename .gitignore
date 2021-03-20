@@ -351,3 +351,5 @@ MigrationBackup/
 
 # rider stuff
 .idea/
+
+coverageReport/

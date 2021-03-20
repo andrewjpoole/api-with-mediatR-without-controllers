@@ -82,7 +82,14 @@ namespace AJP.MediatrEndpoints.Sample
                 });
                 
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting")
-                    .WithPost<GreetingRequest, GreetingResponse>("/");
+                    .WithPost<GreetingRequest, GreetingResponse>("/",string.Empty, StatusCodes.Status200OK, 
+                        ParameterDictionaryBuilder
+                            .NewDictionary()
+                            .AddStringParam(
+                                "To", 
+                                ParameterDictionaryBuilder.In.Query, 
+                                true, 
+                                "blah blah"));
                 
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/", "Gets Accounts with various filter options")

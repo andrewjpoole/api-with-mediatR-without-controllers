@@ -20,32 +20,32 @@ namespace AJP.MediatrEndpoints.EndpointRegistration
             _description = description;
         }        
 
-        public MediatrEndpointGroupMapper WithGet<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, List<OpenApiParameter> additionalParameterDefinitions = null)
+        public MediatrEndpointGroupMapper WithGet<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, Dictionary<string, OpenApiParameter> additionalParameterDefinitions = null)
         {
             AddOperation<TRequest, TResponse>(OperationType.Get, pattern, description, successfulStatusCode, additionalParameterDefinitions);
             return this;
         }
 
-        public MediatrEndpointGroupMapper WithPost<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, List<OpenApiParameter> additionalParameterDefinitions = null)
+        public MediatrEndpointGroupMapper WithPost<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, Dictionary<string, OpenApiParameter> additionalParameterDefinitions = null)
         {
             AddOperation<TRequest, TResponse>(OperationType.Post, pattern, description, successfulStatusCode, additionalParameterDefinitions);
             return this;
         }
 
-        public MediatrEndpointGroupMapper WithPut<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, List<OpenApiParameter> additionalParameterDefinitions = null)
+        public MediatrEndpointGroupMapper WithPut<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, Dictionary<string, OpenApiParameter> additionalParameterDefinitions = null)
         {
             AddOperation<TRequest, TResponse>(OperationType.Put, pattern, description, successfulStatusCode, additionalParameterDefinitions);
             return this;
         }
 
-        public MediatrEndpointGroupMapper WithDelete<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, List<OpenApiParameter> additionalParameterDefinitions = null)
+        public MediatrEndpointGroupMapper WithDelete<TRequest, TResponse>(string pattern, string description = "", int successfulStatusCode = 200, Dictionary<string, OpenApiParameter> additionalParameterDefinitions = null)
         {
             AddOperation<TRequest, TResponse>(OperationType.Delete, pattern, description, successfulStatusCode, additionalParameterDefinitions);
             return this;
         }   
 
-        private void AddOperation<TRequest, TResponse>(OperationType operationType, string pattern, string description = "", int successfulStatusCode = 200, List<OpenApiParameter> additionalParameterDefinitions = null)
-        {      
+        private void AddOperation<TRequest, TResponse>(OperationType operationType, string pattern, string description = "", int successfulStatusCode = 200, Dictionary<string, OpenApiParameter> additionalParameterDefinitions = null)
+        {
             var method = new[] { operationType.ToString().ToUpper() };
             var fullPattern = $"{_path}{AddLeadingSlashIfNotPresent(pattern)}";
             _endpoints.MapMethods(fullPattern, method, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>(successfulStatusCode))
@@ -61,7 +61,7 @@ namespace AJP.MediatrEndpoints.EndpointRegistration
                     ResponseType = typeof(TResponse),
                     Description = description,
                     SuccessfulStatusCode = successfulStatusCode,
-                    OverrideParameterDefinitions = additionalParameterDefinitions
+                    OverrideParameterDefinitions = additionalParameterDefinitions ?? new Dictionary<string, OpenApiParameter>()
                 });
         }
 
