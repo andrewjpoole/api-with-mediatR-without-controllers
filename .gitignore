@@ -353,3 +353,5 @@ MigrationBackup/
 .idea/
 
 coverageReport/
+
+coverage.cobertura.xml
