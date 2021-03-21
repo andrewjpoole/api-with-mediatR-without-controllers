@@ -1,6 +1,8 @@
-cd C:\dev\api-with-mediatR-without-controllers\tests\AJP.MediatrEndpoints.Tests
+cd C:\dev\api-with-mediatR-without-controllers\tests\
 
-coverlet ".\bin\Debug\net5.0\AJP.MediatrEndpoints.Tests.dll" --target "dotnet" --targetargs "test AJP.MediatrEndpoints.Tests.csproj --no-build" --format cobertura
+coverlet ".\AJP.MediatrEndpoints.Tests\bin\Debug\net5.0\AJP.MediatrEndpoints.Tests.dll" --target "dotnet" --targetargs "test AJP.MediatrEndpoints.Tests\AJP.MediatrEndpoints.Tests.csproj --no-build" --format cobertura
+
+del "./coverageReport/*.*?"
 
 reportgenerator -reports:.\AJP.MediatrEndpoints.Tests\coverage.cobertura.xml -targetdir:./coverageReport
 
