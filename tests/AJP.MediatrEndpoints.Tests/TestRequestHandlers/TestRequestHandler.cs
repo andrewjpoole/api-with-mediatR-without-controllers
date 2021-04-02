@@ -4,13 +4,13 @@ using MediatR;
 
 namespace AJP.MediatrEndpoints.Tests.TestRequestHandlers
 {
-    public class TestRequestHandler : IRequestHandler<TestRequest, TestResponse>
+    public class TestRequestHandler : IRequestHandler<TestRequestWithRouteParam, TestResponse>
     {
-        public Task<TestResponse> Handle(TestRequest request, CancellationToken cancellationToken)
+        public Task<TestResponse> Handle(TestRequestWithRouteParam requestWithRouteParam, CancellationToken cancellationToken)
         {
             return Task.FromResult(new TestResponse
             {
-                Message = $"{request.Prop1} {request.Prop2} {request.Prop3} {request.Prop4}"
+                Message = $"{requestWithRouteParam.Prop1} {requestWithRouteParam.Prop2} {requestWithRouteParam.Prop3} {requestWithRouteParam.Prop4}"
             });
         }
     }

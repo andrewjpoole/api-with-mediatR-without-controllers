@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -47,6 +46,7 @@ namespace AJP.MediatrEndpoints
                     
                     var requestObject = JsonDocument.Parse(bodyJson).RootElement;
 
+                    
                     var queryStringValues = SplitQueryString(context.Request.QueryString);
                     
                     // Loop through the public props of the TRequest and try to populate them from body, then route, querystring and headers

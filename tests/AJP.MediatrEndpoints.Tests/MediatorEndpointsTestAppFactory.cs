@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using AJP.MediatrEndpoints.Tests.TestAppImpl;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -11,9 +12,10 @@ namespace AJP.MediatrEndpoints.Tests
         private string _baseUrl = "http://localhost:5003";
         private TestApp _testApp;
         
-        public MediatorEndpointsTestAppFactory(IMediatrEndpointsProcessors requestProcessors)
+        public void StartTestApp(IMediatrEndpointsProcessors requestProcessors, bool addMediator = true)
         {
             Startup.TestRequestProcessors = requestProcessors;
+            Startup.AddMediatorService = addMediator;
             _testApp = new TestApp(_baseUrl);
         }
         

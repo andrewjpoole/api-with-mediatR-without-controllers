@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace AJP.MediatrEndpoints.Tests.TestRequestHandlers
 {
-    public class TestRequest: IRequest<TestResponse>
+    public class TestRequestWithRouteParam: IRequest<TestResponse>
     {
         [SwaggerRouteParameter()]
         public string Prop1 { get; init; }

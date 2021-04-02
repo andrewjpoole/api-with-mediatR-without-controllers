@@ -81,7 +81,7 @@ namespace AJP.MediatrEndpoints.Sample
                     await context.Response.WriteAsync("Hello World!");
                 });
                 
-                endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting")
+                endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting") // Define swagger operation here rather than using Attributes
                     .WithPost<GreetingRequest, GreetingResponse>("/",string.Empty, StatusCodes.Status200OK, 
                         ParameterDictionaryBuilder
                             .NewDictionary()

@@ -4,6 +4,6 @@ coverlet ".\AJP.MediatrEndpoints.Tests\bin\Debug\net5.0\AJP.MediatrEndpoints.Tes
 
 del "./coverageReport/*.*?"
 
-reportgenerator -reports:.\AJP.MediatrEndpoints.Tests\coverage.cobertura.xml -targetdir:./coverageReport
+reportgenerator -reports:.\coverage.cobertura.xml -targetdir:./coverageReport
 
 start C:\dev\api-with-mediatR-without-controllers\tests\coverageReport\index.html
