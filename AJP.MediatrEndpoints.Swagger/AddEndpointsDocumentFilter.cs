@@ -10,10 +10,12 @@ namespace AJP.MediatrEndpoints.Swagger
     public class AddEndpointsDocumentFilter : IDocumentFilter
     {
         private readonly EndpointDataSource _endpointDataSource;
+        private readonly IOpenApiOperationRenderer _openApiOperationRenderer;
 
-        public AddEndpointsDocumentFilter(EndpointDataSource endpointDataSource)
+        public AddEndpointsDocumentFilter(EndpointDataSource endpointDataSource, IOpenApiOperationRenderer openApiOperationRenderer)
         {
             _endpointDataSource = endpointDataSource;
+            _openApiOperationRenderer = openApiOperationRenderer;
         }
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
@@ -25,7 +27,7 @@ namespace AJP.MediatrEndpoints.Swagger
                 if (swaggerDecorator == null)
                     continue;
 
-                var operation = OpenApiOperationRenderer.Render(endpoint, swaggerDecorator, swaggerDoc, context);
+                var operation = _openApiOperationRenderer.Render(endpoint, swaggerDecorator, swaggerDoc, context);
                 
                 // Get existing path to add operation to, or create a new one
                 OpenApiPathItem pathItem;

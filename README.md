@@ -75,14 +75,19 @@ E.g. in the sample I check for the presence of a CorrelationId header, create on
 * Then add the AddEndpointsDocumentFilter when configuring SwaggerGen, see the Startup.cs in the sample.
 `c.DocumentFilter<AddEndpointsDocumentFilter>();`
 * This will loop through the endpoints registered, pull out some metadata and add paths, operations and parameters accordingly.
+* There are two ways to provide descriptions/example values/parameter location hints: 
+  1. via the optional parameters when setting up the Endpoints by providing a `Dictionary<string, OpenApiParameter> additionalParameterDefinitions` when calling
+     `WithGet<TRequest, TResponse>()` etc 
+  2. or by decorating the Request and it's properties with a set of supplied Attributes `SwaggerQueryParameterAttribute` etc
+  
+Examples of both methods can be found in the sample project
 
 ## Testing
 
 The MediatR RequestHandlers can be easily tested by mocking dependencies, passing in a TRequest and Asserting on the returned TResponse.
 
-Component testing can be done by 
+Component level testing can be achieved using the aspnetcore TestHost to run the service in memory, ideally mocking out any external dependencies.
 
-## Todo
+## Licence
 
-* finish tests
-* hook up statsGatherer to dotnet perf counters? 
+MIT, use in any way you like, feel free to contribute :)

@@ -12,9 +12,16 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AJP.MediatrEndpoints.Swagger
 {
-    public static class OpenApiOperationRenderer
+    public class OpenApiOperationRenderer : IOpenApiOperationRenderer
     {
-        public static OpenApiOperation Render(
+        private readonly IOpenApiParameterRenderer _parameterRenderer;
+
+        public OpenApiOperationRenderer(IOpenApiParameterRenderer parameterRenderer)
+        {
+            _parameterRenderer = parameterRenderer;
+        }
+        
+        public OpenApiOperation Render(
             Endpoint endpoint,
             EndpointMetadataDecoratorAttribute swaggerDecorator, 
             OpenApiDocument swaggerDoc,
@@ -53,7 +60,7 @@ namespace AJP.MediatrEndpoints.Swagger
             operationResponse.Content.Add("default", operationResponseMediaType);
             operation.Responses.Add(responseStatusCode.ToString(), operationResponse);
 
-            var (parameters, bodyExampleObject) = OpenApiParameterRenderer.Render(swaggerDecorator);
+            var (parameters, bodyExampleObject) = _parameterRenderer.Render(swaggerDecorator);
             foreach (var parameter in parameters)
                 operation.Parameters.Add(parameter);
             

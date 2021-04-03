@@ -13,9 +13,9 @@ using Microsoft.OpenApi.Models;
 
 namespace AJP.MediatrEndpoints.Swagger
 {
-    public static class OpenApiParameterRenderer
+    public class OpenApiParameterRenderer : IOpenApiParameterRenderer
     {
-        public static (IEnumerable<OpenApiParameter> Parameters, JsonElement bodyExampleObject) Render(EndpointMetadataDecoratorAttribute swaggerDecorator)
+        public (IEnumerable<OpenApiParameter> Parameters, JsonElement bodyExampleObject) Render(EndpointMetadataDecoratorAttribute swaggerDecorator)
         {
             var parameters = new List<OpenApiParameter>();
             var routeParamNames = GetRouteParamNamesFromPattern(swaggerDecorator.Pattern);

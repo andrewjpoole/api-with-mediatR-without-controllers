@@ -82,9 +82,4 @@ namespace AJP.MediatrEndpoints.Tests
             dict.First().Value.Description.Should().Be("enumParamDescription");
         }
     }
-
-    public enum TestEnum
-    {
-        Red, Blue, Green
-    }
 }

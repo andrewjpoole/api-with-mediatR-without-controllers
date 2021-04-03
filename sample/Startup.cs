@@ -45,6 +45,7 @@ namespace AJP.MediatrEndpoints.Sample
             });
 
             services.AddMediatrEndpoints(typeof(Startup));
+            services.AddMediatrEndpointsSwagger();
             
             services.AddLogging();
             services.AddSingleton<IMediatrEndpointsProcessors, RequestProcessors>();
