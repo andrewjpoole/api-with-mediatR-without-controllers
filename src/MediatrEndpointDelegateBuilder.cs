@@ -14,7 +14,7 @@ using AJP.MediatrEndpoints.PropertyAttributes;
 
 namespace AJP.MediatrEndpoints
 {
-    public static class MediatrREndpointDelegateBuilder
+    public static class MediatrEndpointDelegateBuilder
     {
         public static RequestDelegate Build<TRequest, TResponse>(int successfulStatusCode)
         {

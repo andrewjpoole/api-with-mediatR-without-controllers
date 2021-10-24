@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
 using AJP.MediatrEndpoints.EndpointRegistration;
 using AJP.MediatrEndpoints.Swagger.Attributes;
 using Microsoft.AspNetCore.Http;

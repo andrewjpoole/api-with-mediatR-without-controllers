@@ -75,7 +75,7 @@ namespace AJP.MediatrEndpoints.EndpointRegistration
         {
             var method = new[] { operationType.ToString().ToUpper() };
             var fullPattern = $"{_path}{AddLeadingSlashIfNotPresent(pattern)}";
-            var builder = _endpoints.MapMethods(fullPattern, method, MediatrREndpointDelegateBuilder.Build<TRequest, TResponse>(successfulStatusCode))                
+            var builder = _endpoints.MapMethods(fullPattern, method, MediatrEndpointDelegateBuilder.Build<TRequest, TResponse>(successfulStatusCode))                
             .WithMetadata(
                 new EndpointMetadataDecoratorAttribute
                 {

@@ -20,7 +20,7 @@ namespace AJP.MediatrEndpoints.Swagger
             var parameters = new List<OpenApiParameter>();
             var routeParamNames = GetRouteParamNamesFromPattern(swaggerDecorator.Pattern);
 
-            // Get an empty jon object, which will have any TRequest properties that are not route/query/header and therefore expected on the body
+            // Get an empty json object, which will have any TRequest properties that are not route/query/header and therefore expected on the body
             var bodyExampleObject = JsonDocument.Parse("{}").RootElement;
             
             var requestTypeProps = swaggerDecorator.RequestType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -32,9 +32,7 @@ namespace AJP.MediatrEndpoints.Swagger
                     parameters.Add(swaggerDecorator.OverrideParameterDefinitions[requestTypeProp.Name]);
                     continue;
                 }
-                
-                //var isRouteParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerRouteParameterAttribute)).Any();
-                //var isHeaderParam = requestTypeProp.GetCustomAttributes(typeof(SwaggerHeaderParameterAttribute)).Any();
+                                
                 var isOptionalParam = requestTypeProp.GetCustomAttributes(typeof(OptionalPropertyAttribute)).Any();
                 var swaggerDescription = (SwaggerDescriptionAttribute)requestTypeProp.GetCustomAttributes(typeof(SwaggerDescriptionAttribute)).FirstOrDefault();
                 var swaggerExample = (SwaggerExampleValueAttribute)requestTypeProp.GetCustomAttributes(typeof(SwaggerExampleValueAttribute)).FirstOrDefault();
