@@ -145,7 +145,33 @@ namespace AJP.MediatrEndpoints.Tests
             var httpResponseMessage = await _client.SendAsync(request);
             httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status200OK);
         }
-        
+
+        [Fact]
+        public async Task a_GET_request_with_auth_required_and_no_api_key_supplied_should_return_401unauthorized()
+        {
+            _testAppFactory.StartTestApp(_mockRequestRequestProcessors);
+
+            var httpResponseMessage = await _client.GetAsync("/api/v1/test/7");
+
+            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+        }
+
+        [Fact]
+        public async Task a_GET_request_with_auth_required_and_valid_apikey_passed_should_return_ok()
+        {
+            _testAppFactory.StartTestApp(_mockRequestRequestProcessors);
+
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"{_client.BaseAddress}api/v1/test/7")
+            };
+            request.Headers.Add("X-API-KEY", "testKey123");
+            var httpResponseMessage = await _client.SendAsync(request);
+
+            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status200OK);
+        }
+
         [Fact]
         public async Task a_GET_request_with_invalid_body_json_should_return_400BadRequest()
         {

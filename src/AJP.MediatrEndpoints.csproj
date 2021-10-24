@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>AJP.MediatrEndpoints</RootNamespace>
     <PackageId>AJP.MediatrEndpoints</PackageId>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Andrew Poole</Authors>
@@ -13,6 +13,7 @@
     <RepositoryUrl>https://github.com/andrewjpoole/api-with-mediatR-without-controllers</RepositoryUrl>
     <PackageTags>mediatr, aspnetcore, endpoints, no controllers, without controllers</PackageTags>
     <PackageReleaseNotes>
+      1.3.0) added ability to configure the endpoint using an optional Action of IEndpointConventionBuilder, for instance to require authorization for an endpoint
       1.2.0) swagger support moved to separate package
       1.0.1) some internal refactoring
       1.0.0) initial version

@@ -94,7 +94,7 @@ namespace AJP.MediatrEndpoints.Sample
                 
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/", "Gets Accounts with various filter options")
-                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}", "Get a single account by Id")
+                    .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}", "Get a single account by Id") //, configureEndpoint: endpoint => endpoint.RequireAuthorization()) // this is how you require auth etc 
                     .WithPost<CreateAccountRequest, CreateAccountResponse>("/", "Create a new account", StatusCodes.Status201Created)
                     .WithDelete<DeleteAccountByIdRequest, AccountDeletedResponse>("/{Id}", "Delete an account by Id", StatusCodes.Status204NoContent)
                     .WithPut<UpdateAccountStatusRequest, AccountDetails>("/{Id}");
