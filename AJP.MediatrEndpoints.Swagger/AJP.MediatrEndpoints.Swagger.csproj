@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <PackageId>AJP.MediatrEndpoints.Swagger</PackageId>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Authors>Andrew Poole</Authors>
@@ -12,7 +12,8 @@
         <RepositoryUrl>https://github.com/andrewjpoole/api-with-mediatR-without-controllers</RepositoryUrl>
         <PackageTags>mediatr, aspnetcore, endpoints, swagger, openapi, auto documentation</PackageTags>
         <PackageReleaseNotes>
-            1.0.1) some retrospective tidying up
+            1.0.2) upgrade to net6.0 and latest packages
+	        1.0.1) some retrospective tidying up
             1.0.0) initial version
         </PackageReleaseNotes>
         <RepositoryType>github</RepositoryType>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -34,7 +35,7 @@ namespace AJP.MediatrEndpoints.Tests
         private async Task<TestResponse> AssertSuccessAndReturnResponseObject(HttpResponseMessage response)
         {
             Assert.NotNull(response);
-            response.StatusCode.Should().Be(StatusCodes.Status200OK);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var responseBody = await response.Content.ReadAsStreamAsync();
             var testResponse = await JsonSerializer.DeserializeAsync<TestResponse>(responseBody, _jsonSerializerOptions);
@@ -115,7 +116,7 @@ namespace AJP.MediatrEndpoints.Tests
                 RequestUri = new Uri($"{_client.BaseAddress}api/v1/test/3/aaaa"),
             };
             var httpResponseMessage = await _client.SendAsync(request);
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status200OK);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
         }
         
         [Fact]
@@ -129,7 +130,7 @@ namespace AJP.MediatrEndpoints.Tests
                 RequestUri = new Uri($"{_client.BaseAddress}api/v1/test/4/"),
             };
             var httpResponseMessage = await _client.SendAsync(request);
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status200OK);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
         }
         
         [Fact]
@@ -143,7 +144,7 @@ namespace AJP.MediatrEndpoints.Tests
                 RequestUri = new Uri($"{_client.BaseAddress}api/v1/test/5/"),
             };
             var httpResponseMessage = await _client.SendAsync(request);
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status200OK);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Fact]
@@ -153,7 +154,7 @@ namespace AJP.MediatrEndpoints.Tests
 
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/7");
 
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         [Fact]
@@ -169,7 +170,7 @@ namespace AJP.MediatrEndpoints.Tests
             request.Headers.Add("X-API-KEY", "testKey123");
             var httpResponseMessage = await _client.SendAsync(request);
 
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status200OK);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Fact]
@@ -184,7 +185,7 @@ namespace AJP.MediatrEndpoints.Tests
                 Content = new StringContent("{")
             };
             var httpResponseMessage = await _client.SendAsync(request);
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             var responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
             responseContent.Should().Be("Bad request, body is not valid json");
         }
@@ -196,7 +197,7 @@ namespace AJP.MediatrEndpoints.Tests
             
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/2");
 
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
         
         [Fact]
@@ -206,7 +207,7 @@ namespace AJP.MediatrEndpoints.Tests
 
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/2");
 
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
         
         [Fact]
@@ -216,7 +217,7 @@ namespace AJP.MediatrEndpoints.Tests
 
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/2?Prop1=8764");
 
-            httpResponseMessage.StatusCode.Should().Be(StatusCodes.Status202Accepted);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.Accepted);
         }
         
         [Fact]
@@ -260,7 +261,7 @@ namespace AJP.MediatrEndpoints.Tests
             
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/1/aaaa");
 
-            httpResponseMessage.StatusCode.Should().Be(503);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
         }
         
         [Fact]
@@ -272,7 +273,7 @@ namespace AJP.MediatrEndpoints.Tests
             
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/1/aaaa");
 
-            httpResponseMessage.StatusCode.Should().Be(503);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
             
             _mockRequestRequestProcessors.MockPostProcessor.Verify(x => x.Invoke(It.IsAny<HttpContext>(), It.IsAny<TimeSpan>(), It.IsAny<ILogger>()), Times.Once);
         }
@@ -286,7 +287,7 @@ namespace AJP.MediatrEndpoints.Tests
             
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/1/aaaa");
 
-            httpResponseMessage.StatusCode.Should().Be(503);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
             
             _mockRequestRequestProcessors.MockErrorProcessor.Verify(x => x.Invoke(It.IsAny<Exception>(), It.IsAny<HttpContext>(), It.IsAny<ILogger>()), Times.Once);
         }
@@ -298,7 +299,7 @@ namespace AJP.MediatrEndpoints.Tests
 
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/6");
 
-            httpResponseMessage.StatusCode.Should().Be(204);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.NoContent);
             
             httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult().Should().Be("");
             
@@ -313,7 +314,7 @@ namespace AJP.MediatrEndpoints.Tests
             
             var httpResponseMessage = await _client.GetAsync("/api/v1/test/1/aaaa");
 
-            httpResponseMessage.StatusCode.Should().Be(404);
+            httpResponseMessage.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
             httpResponseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult().Should().Be("resource not found!");
         }
