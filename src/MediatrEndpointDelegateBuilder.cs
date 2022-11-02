@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AJP.MediatrEndpoints.Exceptions;
 using AJP.MediatrEndpoints.PropertyAttributes;
 
@@ -26,7 +27,8 @@ namespace AJP.MediatrEndpoints
                 var stopwatch = new Stopwatch();
                 var jsonSerialiserOptions = new JsonSerializerOptions
                 {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase, 
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString
                 };
                 
                 if (mediator is null)

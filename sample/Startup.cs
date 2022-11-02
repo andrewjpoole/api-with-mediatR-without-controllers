@@ -81,17 +81,21 @@ namespace AJP.MediatrEndpoints.Sample
                 {
                     await context.Response.WriteAsync("Hello World!");
                 });
-                
-                endpoints.MapGroupOfEndpointsForAPath("/api/v1/greeting") // Define swagger operation here rather than using Attributes
-                    .WithPost<GreetingRequest, GreetingResponse>("/",string.Empty, StatusCodes.Status200OK, 
+
+                endpoints
+                    .MapGroupOfEndpointsForAPath("/api/v1/greeting", "Greeting") // Define swagger operation here rather than using Attributes
+                    .WithPost<GreetingRequest, GreetingResponse>("/", string.Empty, StatusCodes.Status200OK,
                         ParameterDictionaryBuilder
                             .NewDictionary()
                             .AddStringParam(
-                                "To", 
-                                ParameterDictionaryBuilder.In.Query, 
-                                true, 
+                                "To",
+                                ParameterDictionaryBuilder.In.Query,
+                                true,
                                 "blah blah"));
-                
+
+                endpoints.MapGroupOfEndpointsForAPath("add-two-numbers", "Calculate")
+                    .WithGet<GetSumOfTwoNumbersRequest, GreetingResponse>("");
+
                 endpoints.MapGroupOfEndpointsForAPath("/api/v1/accounts", "Accounts", "everything to do with accounts")
                     .WithGet<GetAccountsRequest, IEnumerable<AccountDetails>>("/", "Gets Accounts with various filter options")
                     .WithGet<GetAccountByIdRequest, AccountDetails>("/{Id}", "Get a single account by Id") //, configureEndpoint: endpoint => endpoint.RequireAuthorization()) // this is how you require auth etc 

@@ -21,7 +21,7 @@ namespace AJP.MediatrEndpoints.Sample.RequestHandlers.Greeting
             
             var response = new GreetingResponse
             {
-                Message = $"Greetings {request.To}! @{DateTime.Now}"
+                Message = $"Greetings {request.To} aged {request.Age}! @{DateTime.Now}"
             };
             
             return Task.FromResult(response);
