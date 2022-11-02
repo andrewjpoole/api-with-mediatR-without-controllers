@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints", "src\AJP.MediatrEndpoints.csproj", "{4CE118EC-B5C8-4665-BAED-2562D73160A9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints.Sample", "sample\AJP.MediatrEndpoints.Sample.csproj", "{7F544F13-BB36-4C15-9AAB-603D9F20BD1D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints.Tests", "tests\AJP.MediatrEndpoints.Tests\AJP.MediatrEndpoints.Tests.csproj", "{6EF477D5-68D9-4425-8986-70DCC7BFFA53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AJP.MediatrEndpoints.Swagger", "AJP.MediatrEndpoints.Swagger\AJP.MediatrEndpoints.Swagger.csproj", "{067EC28E-4025-4E55-A07F-C2F0646F3C7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints", "src\AJP.MediatrEndpoints\AJP.MediatrEndpoints.csproj", "{29E9FA41-2416-49CA-89BB-12EE1783C9EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AJP.MediatrEndpoints.Swagger", "src\AJP.MediatrEndpoints.Swagger\AJP.MediatrEndpoints.Swagger.csproj", "{25C64E5D-59DE-4912-AD81-F24067716244}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4CE118EC-B5C8-4665-BAED-2562D73160A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4CE118EC-B5C8-4665-BAED-2562D73160A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4CE118EC-B5C8-4665-BAED-2562D73160A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4CE118EC-B5C8-4665-BAED-2562D73160A9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F544F13-BB36-4C15-9AAB-603D9F20BD1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7F544F13-BB36-4C15-9AAB-603D9F20BD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7F544F13-BB36-4C15-9AAB-603D9F20BD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -29,10 +25,14 @@ Global
 		{6EF477D5-68D9-4425-8986-70DCC7BFFA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EF477D5-68D9-4425-8986-70DCC7BFFA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EF477D5-68D9-4425-8986-70DCC7BFFA53}.Release|Any CPU.Build.0 = Release|Any CPU
-		{067EC28E-4025-4E55-A07F-C2F0646F3C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{067EC28E-4025-4E55-A07F-C2F0646F3C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{067EC28E-4025-4E55-A07F-C2F0646F3C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{067EC28E-4025-4E55-A07F-C2F0646F3C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29E9FA41-2416-49CA-89BB-12EE1783C9EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29E9FA41-2416-49CA-89BB-12EE1783C9EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29E9FA41-2416-49CA-89BB-12EE1783C9EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29E9FA41-2416-49CA-89BB-12EE1783C9EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25C64E5D-59DE-4912-AD81-F24067716244}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25C64E5D-59DE-4912-AD81-F24067716244}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25C64E5D-59DE-4912-AD81-F24067716244}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25C64E5D-59DE-4912-AD81-F24067716244}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

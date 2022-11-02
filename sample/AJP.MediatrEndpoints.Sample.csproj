@@ -5,15 +5,15 @@
     <RootNamespace>AJP.MediatrEndpoints.Sample</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\src\AJP.MediatrEndpoints.Swagger\AJP.MediatrEndpoints.Swagger.csproj" />
+    <ProjectReference Include="..\src\AJP.MediatrEndpoints\AJP.MediatrEndpoints.csproj" />
+  </ItemGroup>
+
   <!--<ItemGroup>
     <PackageReference Include="MediatR" Version="11.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="swashbuckle.aspnetcore" Version="6.4.0" />
   </ItemGroup>-->
-
-  <ItemGroup>
-    <ProjectReference Include="..\AJP.MediatrEndpoints.Swagger\AJP.MediatrEndpoints.Swagger.csproj" />
-    <ProjectReference Include="..\src\AJP.MediatrEndpoints.csproj" />
-  </ItemGroup>
 
 </Project>

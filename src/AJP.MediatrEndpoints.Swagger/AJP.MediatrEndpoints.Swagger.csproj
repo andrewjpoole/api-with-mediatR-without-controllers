@@ -24,8 +24,8 @@
 		<PackageReference Include="swashbuckle.aspnetcore" Version="6.4.0" />
 	</ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\src\AJP.MediatrEndpoints.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\AJP.MediatrEndpoints\AJP.MediatrEndpoints.csproj" />
+	</ItemGroup>
 
 </Project>
